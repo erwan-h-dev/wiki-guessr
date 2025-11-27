@@ -1,0 +1,40 @@
+services:
+  frankenphp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wiki-guessr-app
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+      - "8443:443"
+    volumes:
+      - ../html:/app
+    working_dir: /app
+    environment:
+      SERVER_NAME: "wiki-guessr.local:8080"
+    networks:
+      - wiki-guessr-network
+    depends_on:
+      - database
+
+  database:
+    image: mysql:8.0
+    container_name: wiki-guessr-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: wiki_guessr
+      MYSQL_USER: wiki_guessr
+      MYSQL_PASSWORD: wiki_guessr_password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ../mysql:/var/lib/mysql
+    networks:
+      - wiki-guessr-network
+    command: --default-authentication-plugin=mysql_native_password
+
+networks:
+  wiki-guessr-network:
+    driver: bridge

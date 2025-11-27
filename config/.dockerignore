@@ -1,0 +1,35 @@
+###> symfony/framework-bundle ###
+/.env.local
+/.env.local.php
+/.env.*.local
+/config/secrets/prod/prod.decrypt.private.php
+/public/bundles/
+/var/
+/vendor/
+###< symfony/framework-bundle ###
+
+# Git files
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Composer
+composer.phar
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# Tests
+phpunit.xml.dist
+.phpunit.result.cache
+
+# Node modules
+node_modules/
