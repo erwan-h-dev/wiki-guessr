@@ -6,4 +6,15 @@
  */
 
 // any CSS you import will output into a single css file (app.css in this case)
+
+// Importe Turbo (pas besoin de CDN !)
+import '@hotwired/turbo';
+
+// Importe Stimulus
+import './bootstrap.js';
+
+// Importe les styles
 import './styles/app.css';
+import './styles/game.css';
+
+console.log('✓ Wiki Game loaded!');

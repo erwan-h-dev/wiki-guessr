@@ -35,7 +35,7 @@ class HtmlCleaner
         $cleanedHtml = $dom->saveHTML();
 
         // Remove the XML encoding declaration we added
-        $cleanedHtml = str_replace('<?xml encoding="UTF-8">', "'", $cleanedHtml);
+        $cleanedHtml = str_replace('<?xml encoding="UTF-8">', "", $cleanedHtml);
 
         return $cleanedHtml;
     }
@@ -62,6 +62,8 @@ class HtmlCleaner
             '//*[contains(@class, "navbox")]',
             '//*[@role="navigation"]',
             '//sup[contains(@class, "reference")]',
+            // remove mw-editsection
+            '//*[contains(@class, "mw-editsection")]',
         ];
 
         foreach ($selectorsToRemove as $selector) {
@@ -99,7 +101,7 @@ class HtmlCleaner
                 $pageTitle = explode('#', $pageTitle)[0];
 
                 // Generate the game route URL
-                $newHref = $this->urlGenerator->generate('game_page', [
+                $newHref = $this->urlGenerator->generate('game_load_page', [
                     'id' => $gameId,
                     'title' => $pageTitle,
                 ]);

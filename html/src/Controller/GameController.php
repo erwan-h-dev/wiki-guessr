@@ -47,13 +47,12 @@ final class GameController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/page/{title}', name: 'game_page', requirements: ['title' => '.+'])]
+    #[Route('/{id}/page/{title}', name: 'game_load_page', requirements: ['title' => '.+'])]
     public function page(
         GameSession $session,
         string $title,
         Request $request
     ): Response {
-
         if ($session->isCompleted()) {
             return $this->render('game/completed.html.twig', [
                 'session' => $session,
@@ -78,34 +77,14 @@ final class GameController extends AbstractController
         }
 
         // Fetch Wikipedia content
-        //try {
-            $pageData = $this->wikipediaService->getPage($title);
-            $cleanedContent = $this->htmlCleaner->clean($pageData['content']['*'], $session->getId());
+        $pageData = $this->wikipediaService->getPage($title);
+        $cleanedContent = $this->htmlCleaner->clean($pageData['content']['*'], $session->getId());
+        return $this->render('game/_wiki_content.html.twig', [
+            'content' => $cleanedContent,
+            'title' => $pageData['displaytitle'],
+            'session' => $session,
+            'challenge' => $session->getChallenge(),
+        ]);
 
-            // If this is a Turbo Frame request, return only the frame content
-            if ($request->headers->get('Turbo-Frame') === 'wiki-content') {
-                return $this->render('game/_wiki_content.html.twig', [
-                    'content' => $cleanedContent,
-                    'title' => $pageData['displaytitle'],
-                    'session' => $session,
-                    'challenge' => $session->getChallenge(),
-                ]);
-            }
-
-            // Full page render
-            return $this->render('game/play.html.twig', [
-                'content' => $cleanedContent,
-                'title' => $pageData['displaytitle'],
-                'session' => $session,
-                'challenge' => $session->getChallenge(),
-            ]);
-        //} catch (\Exception $e) {
-        //    $this->addFlash('error', 'Error loading Wikipedia page: ' . $e->getMessage());
-        //
-        //    return $this->render('game/error.html.twig', [
-        //        'error' => $e->getMessage(),
-        //        'session' => $session,
-        //    ]);
-        //}
     }
 }
