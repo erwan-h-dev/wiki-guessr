@@ -12,6 +12,13 @@ RUN apt-get update && apt-get install -y \
     intl \
     opcache
 
+# Install Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Copy Xdebug configuration
+COPY xdebug.ini $PHP_INI_DIR/conf.d/xdebug.ini
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 

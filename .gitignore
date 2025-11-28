@@ -4,6 +4,7 @@ mysql/
 # IDE
 .idea/
 .vscode/
+CLAUDE.md
 *.swp
 *.swo
 *~

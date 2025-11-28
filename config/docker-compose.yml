@@ -13,6 +13,8 @@ services:
     working_dir: /app
     environment:
       SERVER_NAME: "wiki-guessr.local:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - wiki-guessr-network
     depends_on:
