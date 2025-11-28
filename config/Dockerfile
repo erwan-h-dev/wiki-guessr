@@ -19,6 +19,9 @@ RUN pecl install xdebug \
 # Copy Xdebug configuration
 COPY xdebug.ini $PHP_INI_DIR/conf.d/xdebug.ini
 
+# Copy timezone configuration
+COPY php-timezone.ini $PHP_INI_DIR/conf.d/php-timezone.ini
+
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -26,7 +29,8 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 # Configure PHP
-RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini" \
+    && echo "date.timezone = Europe/Paris" >> "$PHP_INI_DIR/php.ini"
 
 # Copy Caddyfile
 COPY Caddyfile /etc/caddy/Caddyfile

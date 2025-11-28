@@ -1,0 +1,109 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Wiki Game - Choisissez votre mode de jeu{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('landing') }}
+{% endblock %}
+
+{% block body %}
+<div class="landing-container">
+    <header class="header">
+        <h1 class="main-title">Wiki Game</h1>
+        <p class="subtitle">Naviguez de page Wikipedia en page pour atteindre votre objectif</p>
+    </header>
+
+    <main class="game-modes">
+        <h2 class="section-title">Choisissez votre mode de jeu</h2>
+
+        <div class="modes-grid">
+            <!-- Mode Solo -->
+            <a href="{{ path('challenges') }}" class="mode-card available">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Mode Solo</h3>
+                <p class="mode-description">Défis prédéfinis avec différents niveaux de difficulté</p>
+                <span class="mode-status available">Disponible</span>
+            </a>
+
+            <!-- Mode Défi Quotidien -->
+            <div class="mode-card unavailable">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Défi Quotidien</h3>
+                <p class="mode-description">Un nouveau défi chaque jour, partagé par tous les joueurs</p>
+                <span class="mode-status">Bientôt disponible</span>
+            </div>
+
+            <!-- Mode Multijoueur -->
+            <div class="mode-card unavailable">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                        <circle cx="9" cy="7" r="4"/>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Multijoueur</h3>
+                <p class="mode-description">Affrontez vos amis en temps réel sur le même défi</p>
+                <span class="mode-status">Bientôt disponible</span>
+            </div>
+
+            <!-- Mode Contre la Montre -->
+            <div class="mode-card unavailable">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Contre la Montre</h3>
+                <p class="mode-description">Trouvez le chemin le plus court en un temps limité</p>
+                <span class="mode-status">Bientôt disponible</span>
+            </div>
+
+            <!-- Mode Libre -->
+            <div class="mode-card unavailable">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <line x1="2" y1="12" x2="22" y2="12"/>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Mode Libre</h3>
+                <p class="mode-description">Créez vos propres défis avec n'importe quelles pages</p>
+                <span class="mode-status">Bientôt disponible</span>
+            </div>
+
+            <!-- Mode Marathon -->
+            <div class="mode-card unavailable">
+                <div class="mode-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="2" x2="12" y2="22"/>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                    </svg>
+                </div>
+                <h3 class="mode-title">Marathon</h3>
+                <p class="mode-description">Enchaînez plusieurs défis à la suite et cumulez des points</p>
+                <span class="mode-status">Bientôt disponible</span>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Wiki Game - Un jeu de navigation Wikipedia</p>
+    </footer>
+</div>
+{% endblock %}

@@ -2,6 +2,11 @@
 framework:
     secret: '%env(APP_SECRET)%'
 
+    # Timezone configuration
+    default_locale: fr
+    php_errors:
+        log: true
+
     # Note that the session will be started ONLY if you read or write from it.
     session: true
 

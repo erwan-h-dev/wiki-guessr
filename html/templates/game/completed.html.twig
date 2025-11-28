@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Partie terminée - Wiki Guessr{% endblock %}
+
+{% block body %}
+<div class="completed-container">
+    <div class="completed-card">
+        <h1 class="completed-title">Cette partie est déjà terminée</h1>
+        <p class="completed-message">Retournez aux défis pour commencer une nouvelle partie.</p>
+        
+        <div class="completed-actions">
+            <a href="{{ path('challenges') }}" class="btn btn-primary">Voir les défis</a>
+        </div>
+    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F9FAFB;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.completed-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.completed-card {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.completed-title {
+    font-size: 2rem;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.completed-message {
+    color: #6B7280;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #6366F1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4F46E5;
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Défis Solo - Wiki Game{% endblock %}
+
+{% block stylesheets %}
+    {{ encore_entry_link_tags('landing') }}
+{% endblock %}
+
+{% block body %}
+<div class="landing-container">
+    <header class="header">
+        <a href="{{ path('app_home') }}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Retour
+        </a>
+        <h1 class="main-title">Mode Solo</h1>
+        <p class="subtitle">Choisissez un défi et trouvez le chemin le plus court</p>
+    </header>
+
+    <main class="game-modes challenges-page">
+        <h2 class="section-title">Défis disponibles</h2>
+
+        {% if challenges is empty %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <h3>Aucun défi disponible</h3>
+                <p>Revenez plus tard pour découvrir de nouveaux défis !</p>
+            </div>
+        {% else %}
+            <div class="challenges-grid">
+                {% for challenge in challenges %}
+                    <a href="{{ path('game_start', {id: challenge.id}) }}" class="challenge-card">
+                        <div class="challenge-header">
+                            <h3 class="challenge-title">{{ challenge.name }}</h3>
+                            <span class="difficulty-badge difficulty-{{ challenge.difficulty }}">
+                                {{ challenge.difficulty|capitalize }}
+                            </span>
+                        </div>
+
+                        <div class="challenge-route">
+                            <div class="route-point">
+                                <span class="route-label">Départ</span>
+                                <div class="route-page start">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                                        <polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                    <span>{{ challenge.startPage }}</span>
+                                </div>
+                            </div>
+
+                            <div class="route-arrow">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </div>
+
+                            <div class="route-point">
+                                <span class="route-label">Arrivée</span>
+                                <div class="route-page end">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                        <polyline points="22 4 12 14.01 9 11.01"/>
+                                    </svg>
+                                    <span>{{ challenge.endPage }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="challenge-action">
+                            <span class="action-text">Commencer le défi</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+
+    <footer class="footer">
+        <p>Wiki Game - Un jeu de navigation Wikipedia</p>
+    </footer>
+</div>
+{% endblock %}

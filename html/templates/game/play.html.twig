@@ -1,0 +1,161 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Wiki Guessr{% endblock %}
+
+{% block body %}
+<div class="game-container">
+    <div class="game-header">
+        <div class="game-info">
+            <h3 class="challenge-title">{{ challenge.name }}</h3>
+            <div class="target-info">
+                <span class="target-label">Objectif:</span>
+                <span class="target-page">{{ challenge.endPage }}</span>
+            </div>
+        </div>
+
+        <div id="timer" class="timer">00:00</div>
+
+        <div class="stats">
+            <div class="stat">
+                <span class="stat-value">{{ session.path|length }}</span>
+                <span class="stat-label">Pages</span>
+            </div>
+        </div>
+    </div>
+
+    <turbo-frame id="wiki-content" class="wiki-frame">
+{#        {% include 'game/_wiki_content.html.twig' %}#}
+    </turbo-frame>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.4/dist/turbo.es2017-esm.js" type="module"></script>
+<script>
+// Simple timer implementation
+let startTime = new Date('{{ session.startTime|date('Y-m-d H:i:s') }}').getTime();
+let timerElement = document.getElementById('timer');
+
+function updateTimer() {
+    const now = new Date().getTime();
+    const elapsed = Math.floor((now - startTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    timerElement.textContent = `${minutes}:${seconds}`;
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
+</script>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #F9FAFB;
+}
+
+.game-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.game-header {
+    background: white;
+    border-bottom: 2px solid #E5E7EB;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.game-info {
+    flex: 1;
+}
+
+.challenge-title {
+    font-size: 1.125rem;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.target-info {
+    font-size: 0.875rem;
+    color: #6B7280;
+}
+
+.target-label {
+    font-weight: 500;
+}
+
+.target-page {
+    color: #10B981;
+    font-weight: 600;
+}
+
+.timer {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #6366F1;
+    font-variant-numeric: tabular-nums;
+    min-width: 120px;
+    text-align: center;
+}
+
+.stats {
+    display: flex;
+    gap: 1.5rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6B7280;
+    text-transform: uppercase;
+}
+
+.wiki-frame {
+    flex: 1;
+    background: white;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .game-header {
+        flex-wrap: wrap;
+        padding: 1rem;
+    }
+
+    .timer {
+        font-size: 1.5rem;
+    }
+
+    .wiki-frame {
+        padding: 1rem;
+    }
+}
+</style>
+{% endblock %}

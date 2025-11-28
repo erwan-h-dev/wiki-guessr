@@ -1,0 +1,83 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur - Wiki Guessr{% endblock %}
+
+{% block body %}
+<div class="error-container">
+    <div class="error-card">
+        <div class="error-icon">⚠️</div>
+        <h1 class="error-title">Oups !</h1>
+        <p class="error-message">{{ error }}</p>
+        
+        <div class="error-actions">
+            <a href="{{ path('challenges') }}" class="btn btn-primary">Retour aux défis</a>
+        </div>
+    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F9FAFB;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.error-container {
+    width: 100%;
+    max-width: 600px;
+}
+
+.error-card {
+    background: white;
+    border-radius: 12px;
+    padding: 3rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.error-title {
+    font-size: 2rem;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.error-message {
+    color: #6B7280;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #6366F1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4F46E5;
+    transform: scale(1.05);
+}
+</style>
+{% endblock %}

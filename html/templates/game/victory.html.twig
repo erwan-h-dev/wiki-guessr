@@ -1,0 +1,254 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Victoire ! - Wiki Guessr{% endblock %}
+
+{% block body %}
+<div class="victory-container">
+    <div class="victory-card">
+        <div class="confetti">🎉</div>
+        
+        <h1 class="victory-title">Félicitations !</h1>
+        <p class="victory-subtitle">Vous avez atteint votre objectif !</p>
+
+        <div class="victory-stats">
+            <div class="stat-large">
+                <div class="stat-value">
+                    {% set minutes = (statistics.duration / 60)|round(0, 'floor') %}
+                    {% set seconds = statistics.duration % 60 %}
+                    {{ '%02d'|format(minutes) }}:{{ '%02d'|format(seconds) }}
+                </div>
+                <div class="stat-label">Temps total</div>
+            </div>
+
+            <div class="stat-large">
+                <div class="stat-value">{{ statistics.pathLength }}</div>
+                <div class="stat-label">Pages visitées</div>
+            </div>
+
+            <div class="stat-large">
+                <div class="stat-value">{{ statistics.efficiency }}%</div>
+                <div class="stat-label">Efficacité</div>
+            </div>
+        </div>
+
+        <div class="path-section">
+            <h2>Votre chemin victorieux</h2>
+            <div class="path-list">
+                {% for page in statistics.path %}
+                    <div class="path-item">
+                        <span class="path-number">{{ loop.index }}</span>
+                        <span class="path-page">{{ page }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if statistics.deadEndCount > 0 %}
+            <div class="dead-ends-section">
+                <h3>Impasses explorées ({{ statistics.deadEndCount }})</h3>
+                <div class="dead-ends-list">
+                    {% for page in statistics.deadEnds %}
+                        <span class="dead-end-badge">{{ page }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="victory-actions">
+            <a href="{{ path('challenges') }}" class="btn btn-primary">Nouveau défi</a>
+        </div>
+    </div>
+</div>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.victory-container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.victory-card {
+    background: white;
+    border-radius: 16px;
+    padding: 3rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    text-align: center;
+}
+
+.confetti {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.victory-title {
+    font-size: 2.5rem;
+    color: #111827;
+    margin-bottom: 0.5rem;
+}
+
+.victory-subtitle {
+    font-size: 1.25rem;
+    color: #6B7280;
+    margin-bottom: 2rem;
+}
+
+.victory-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: #F9FAFB;
+    border-radius: 12px;
+}
+
+.stat-large {
+    text-align: center;
+}
+
+.stat-large .stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #6366F1;
+    margin-bottom: 0.5rem;
+}
+
+.stat-large .stat-label {
+    font-size: 0.875rem;
+    color: #6B7280;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.path-section {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.path-section h2 {
+    font-size: 1.5rem;
+    color: #111827;
+    margin-bottom: 1rem;
+}
+
+.path-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.path-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: #F3F4F6;
+    border-radius: 8px;
+    border-left: 4px solid #8B5CF6;
+}
+
+.path-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: #8B5CF6;
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.875rem;
+}
+
+.path-page {
+    font-weight: 500;
+    color: #111827;
+}
+
+.dead-ends-section {
+    margin-bottom: 2rem;
+    text-align: left;
+}
+
+.dead-ends-section h3 {
+    font-size: 1.125rem;
+    color: #111827;
+    margin-bottom: 0.75rem;
+}
+
+.dead-ends-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.dead-end-badge {
+    padding: 0.5rem 1rem;
+    background: #FEE2E2;
+    color: #991B1B;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.victory-actions {
+    margin-top: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #6366F1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #4F46E5;
+    transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+    .victory-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .victory-stats {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .victory-title {
+        font-size: 2rem;
+    }
+}
+</style>
+{% endblock %}
