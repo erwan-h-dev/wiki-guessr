@@ -1,0 +1,158 @@
+/* Wikipedia-style Popover Styles */
+
+.wiki-popover {
+    position: absolute;
+    z-index: 1000;
+    width: 400px;
+    max-width: 90vw;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    pointer-events: none;
+}
+
+.wiki-popover.visible {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.wiki-popover-content {
+    background: #ffffff;
+    border: 1px solid #a2a9b1;
+    border-radius: 4px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.wiki-popover-thumbnail {
+    width: 100%;
+    height: auto;
+    max-height: 120px;
+    object-fit: cover;
+    border-radius: 2px;
+    margin-bottom: 8px;
+}
+
+.wiki-popover-body {
+    flex: 1;
+}
+
+.wiki-popover-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #202122;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    font-family: 'Linux Libertine', Georgia, Times, serif;
+}
+
+.wiki-popover-extract {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #202122;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+}
+
+.wiki-popover-loading {
+    padding: 20px;
+    text-align: center;
+    color: #72777d;
+    font-size: 0.9rem;
+}
+
+.wiki-popover-error {
+    padding: 20px;
+    text-align: center;
+    color: #d33;
+    font-size: 0.9rem;
+}
+
+/* Animation pour le contenu */
+.wiki-popover-content {
+    animation: popoverFadeIn 0.15s ease;
+}
+
+@keyframes popoverFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .wiki-popover {
+        width: 320px;
+    }
+
+    .wiki-popover-content {
+        max-height: 250px;
+    }
+
+    .wiki-popover-title {
+        font-size: 1rem;
+    }
+
+    .wiki-popover-extract {
+        font-size: 0.85rem;
+    }
+}
+
+/* Scrollbar personnalisée */
+.wiki-popover-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.wiki-popover-content::-webkit-scrollbar-track {
+    background: #f3f4f6;
+    border-radius: 3px;
+}
+
+.wiki-popover-content::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.wiki-popover-content::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Dark mode support (optionnel) */
+@media (prefers-color-scheme: dark) {
+    .wiki-popover-content {
+        background: #27292d;
+        border-color: #54595d;
+    }
+
+    .wiki-popover-title,
+    .wiki-popover-extract {
+        color: #eaecf0;
+    }
+
+    .wiki-popover-loading {
+        color: #a2a9b1;
+    }
+
+    .wiki-popover-content::-webkit-scrollbar-track {
+        background: #202122;
+    }
+
+    .wiki-popover-content::-webkit-scrollbar-thumb {
+        background: #54595d;
+    }
+
+    .wiki-popover-content::-webkit-scrollbar-thumb:hover {
+        background: #72777d;
+    }
+}

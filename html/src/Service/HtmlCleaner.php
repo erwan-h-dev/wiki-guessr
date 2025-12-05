@@ -62,14 +62,30 @@ class HtmlCleaner
             '//*[contains(@class, "navbox")]',
             '//*[@role="navigation"]',
             '//sup[contains(@class, "reference")]',
-            // remove mw-editsection
             '//*[contains(@class, "mw-editsection")]',
+        ];
+
+        $selectorsToDisable = [
+            '//*[contains(@href, "/wiki/Fichier:")]',
         ];
 
         foreach ($selectorsToRemove as $selector) {
             $nodes = $xpath->query($selector);
             foreach ($nodes as $node) {
                 if ($node->parentNode) {
+                    $node->parentNode->removeChild($node);
+                }
+            }
+        }
+
+        foreach ($selectorsToDisable as $selector) {
+            $nodes = $xpath->query($selector);
+            foreach ($nodes as $node) {
+                // remove link but keep the content
+                if ($node->parentNode) {
+                    while ($node->firstChild) {
+                        $node->parentNode->insertBefore($node->firstChild, $node);
+                    }
                     $node->parentNode->removeChild($node);
                 }
             }
@@ -109,6 +125,7 @@ class HtmlCleaner
                 // Update the link
                 $link->setAttribute('href', $newHref);
                 $link->setAttribute('data-turbo-frame', 'wiki-content');
+                $link->setAttribute('data-wiki-link', 'true');
 
             } else {
                 // For external links or other links, disable Turbo

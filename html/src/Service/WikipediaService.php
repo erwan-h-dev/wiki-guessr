@@ -75,4 +75,59 @@ class WikipediaService
             return false;
         }
     }
+
+    /**
+     * Get a short extract of a Wikipedia page for preview
+     *
+     * @return array{title: string, extract: string, thumbnail: string|null}
+     * @throws \Exception if the page does not exist or an error occurs
+     */
+    public function getPageExtract(string $title): array
+    {
+        try {
+            $response = $this->httpClient->request('GET', self::API_ENDPOINT, [
+                'query' => [
+                    'action' => 'query',
+                    'format' => 'json',
+                    'prop' => 'extracts|pageimages',
+                    'exintro' => true,
+                    'explaintext' => true,
+                    'exsentences' => 3,
+                    'piprop' => 'thumbnail',
+                    'pithumbsize' => 300,
+                    'titles' => $title,
+                ],
+                'timeout' => self::TIMEOUT,
+            ]);
+
+            $data = $response->toArray();
+
+            if (isset($data['error'])) {
+                throw new \Exception(sprintf('Page "%s" not found: %s', $title, $data['error']['info'] ?? 'Unknown error'));
+            }
+
+            if (!isset($data['query']['pages'])) {
+                throw new \Exception(sprintf('No content found for page "%s"', $title));
+            }
+
+            $pages = $data['query']['pages'];
+            $page = reset($pages); // Get the first (and only) page
+
+            if (isset($page['missing'])) {
+                throw new \Exception(sprintf('Page "%s" does not exist', $title));
+            }
+
+            return [
+                'title' => $page['title'] ?? $title,
+                'extract' => $page['extract'] ?? '',
+                'thumbnail' => $page['thumbnail']['source'] ?? null,
+            ];
+        } catch (TransportExceptionInterface $e) {
+            $this->logger->error('Wikipedia API transport error', [
+                'title' => $title,
+                'message' => $e->getMessage(),
+            ]);
+            throw new \Exception(sprintf('Error fetching extract for "%s": %s', $title, $e->getMessage()), 0, $e);
+        }
+    }
 }

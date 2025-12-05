@@ -3,7 +3,12 @@
 {% block title %}{{ challenge.name }} - Wiki Game{% endblock %}
 
 {% block body %}
-    <div class="game-container">
+    <div
+        class="game-container"
+        data-controller="wiki-history"
+        data-wiki-history-game-id-value="{{ session.id }}"
+        data-start-page="{{ challenge.startPage }}"
+    >
         {# Header du jeu #}
         <div class="game-header">
             <div class="game-info">
@@ -32,12 +37,17 @@
         <turbo-frame
             id="wiki-content"
             class="wiki-frame"
-            data-controller="wiki-container"
-            src="{{ path('game_load_page', {id: session.id, title: challenge.startPage}) }}"
+            data-controller="wiki-container wiki-popover"
+            data-wiki-history-target="frame"
+            data-wiki-popover-game-id-value="{{ session.id }}"
+            data-turbo-prefetch="false"
         >
             <div class="loading-placeholder">
                 <p>Chargement de la page Wikipedia...</p>
             </div>
         </turbo-frame>
     </div>
+
+    {# Conteneur pour la modal de victoire (sera rempli par Turbo Stream) #}
+    <div id="victory-modal-container"></div>
 {% endblock %}

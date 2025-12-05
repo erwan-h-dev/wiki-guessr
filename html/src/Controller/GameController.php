@@ -9,9 +9,11 @@ use App\Service\HtmlCleaner;
 use App\Service\GameNavigationService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/game')]
@@ -48,19 +50,25 @@ final class GameController extends AbstractController
     }
 
     #[Route('/{id}/page/{title}', name: 'game_load_page', requirements: ['title' => '.+'])]
-    public function page(
-        GameSession $session,
-        string $title,
-        Request $request
-    ): Response {
+    public function page(Request $request, GameSession $session, string $title): Response
+    {
         if ($session->isCompleted()) {
             return $this->render('game/completed.html.twig', [
                 'session' => $session,
             ]);
         }
 
-        // Handle navigation
-        $isBackNavigation = $this->navigationService->navigateToPage($session, $title);
+        $statistics = null;
+        $this->navigationService->navigateToPage($session, $title);
+
+        // Fetch Wikipedia content
+        try {
+            $pageData = $this->wikipediaService->getPage($title);
+        } catch (Exception $e) {
+            return new Response('Page not found', 404);
+        }
+
+        $cleanedContent = $this->htmlCleaner->clean($pageData['content']['*'], $session->getId());
 
         // Check for victory
         if ($this->navigationService->isTargetReached($session, $title)) {
@@ -68,23 +76,42 @@ final class GameController extends AbstractController
             $this->entityManager->flush();
 
             $statistics = $this->navigationService->calculateStatistics($session);
-
-            return $this->render('game/victory.html.twig', [
-                'session' => $session,
-                'statistics' => $statistics,
-                'challenge' => $session->getChallenge(),
-            ]);
         }
 
-        // Fetch Wikipedia content
-        $pageData = $this->wikipediaService->getPage($title);
-        $cleanedContent = $this->htmlCleaner->clean($pageData['content']['*'], $session->getId());
-        return $this->render('game/_wiki_content.html.twig', [
+        $params = [
             'content' => $cleanedContent,
-            'title' => $pageData['displaytitle'],
+            'title' => $title,
             'session' => $session,
             'challenge' => $session->getChallenge(),
-        ]);
+            'statistics' => $statistics,
+        ];
 
+        // Requête depuis un Turbo Frame : renvoyer turbo-streams
+        if ($request->headers->has('Turbo-Frame')) {
+            $html = $this->renderView('game/_wiki_content.html.twig', $params);
+            return new Response($html, 200, ['Content-Type' => 'text/vnd.turbo-stream.html']);
+        }
+        // Chargement direct (non-frame)
+        return $this->render('game/_wiki_content.html.twig', $params);
+    }
+
+    #[Route('/{id}/extract/{title}', name: 'game_page_extract', requirements: ['title' => '.+'])]
+    public function extract(GameSession $session, string $title): JsonResponse
+    {
+        try {
+            $extractData = $this->wikipediaService->getPageExtract($title);
+
+            return new JsonResponse([
+                'success' => true,
+                'title' => $extractData['title'],
+                'extract' => $extractData['extract'],
+                'thumbnail' => $extractData['thumbnail'],
+            ]);
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'error' => 'Unable to fetch page preview',
+            ], 404);
+        }
     }
 }

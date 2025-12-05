@@ -15,9 +15,11 @@ class GameNavigationService
     /**
      * Handle navigation to a new page
      *
-     * @return bool True if this is a back navigation, false otherwise
+     * @param GameSession $session
+     * @param string $pageTitle
+     * @return void
      */
-    public function navigateToPage(GameSession $session, string $pageTitle): bool
+    public function navigateToPage(GameSession $session, string $pageTitle): void
     {
         $path = $session->getPath();
         $isBackNavigation = false;
@@ -26,8 +28,6 @@ class GameNavigationService
         $existingIndex = array_search($pageTitle, $path);
 
         if ($existingIndex !== false) {
-            // This is a back navigation
-            $isBackNavigation = true;
 
             // Get the last page before going back
             $fromPage = end($path);
@@ -47,8 +47,6 @@ class GameNavigationService
         }
 
         $this->entityManager->flush();
-
-        return $isBackNavigation;
     }
 
     /**

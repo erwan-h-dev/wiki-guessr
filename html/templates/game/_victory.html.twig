@@ -1,14 +1,14 @@
-{% extends 'base.html.twig' %}
-
-{% block title %}Victoire ! - Wiki Guessr{% endblock %}
-
-{% block body %}
-<div class="victory-container">
-    <div class="victory-card">
-        <div class="confetti">🎉</div>
-        
-        <h1 class="victory-title">Félicitations !</h1>
-        <p class="victory-subtitle">Vous avez atteint votre objectif !</p>
+{# Modal de victoire #}
+<div class="victory-modal"
+     data-controller="victory"
+     data-victory-target="modal"
+     data-action="click->victory#handleBackdropClick">
+    <div class="victory-modal-content">
+        <div class="victory-header">
+            <div class="confetti-icon">🎉</div>
+            <h1 class="victory-title">Félicitations !</h1>
+            <p class="victory-subtitle">Vous avez atteint votre objectif !</p>
+        </div>
 
         <div class="victory-stats">
             <div class="stat-large">
@@ -37,7 +37,7 @@
                 {% for page in statistics.path %}
                     <div class="path-item">
                         <span class="path-number">{{ loop.index }}</span>
-                        <span class="path-page">{{ page }}</span>
+                        <span class="path-page">{{ page|replace({'_': ' '}) }}</span>
                     </div>
                 {% endfor %}
             </div>
@@ -48,49 +48,66 @@
                 <h3>Impasses explorées ({{ statistics.deadEndCount }})</h3>
                 <div class="dead-ends-list">
                     {% for page in statistics.deadEnds %}
-                        <span class="dead-end-badge">{{ page }}</span>
+                        <span class="dead-end-badge">{{ page|replace({'_': ' '}) }}</span>
                     {% endfor %}
                 </div>
             </div>
         {% endif %}
 
         <div class="victory-actions">
-            <a href="{{ path('challenges') }}" class="btn btn-primary">Nouveau défi</a>
+            <a href="{{ path('challenges') }}" class="btn btn-primary" data-turbo="false">Nouveau défi</a>
+            <button type="button" class="btn btn-secondary" data-action="click->victory#close">Fermer</button>
         </div>
     </div>
 </div>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
+.victory-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding: 1rem;
+    overflow-y: auto;
 }
 
-.victory-container {
-    width: 100%;
-    max-width: 800px;
+.victory-modal.show {
+    opacity: 1;
+    visibility: visible;
 }
 
-.victory-card {
+.victory-modal-content {
     background: white;
     border-radius: 16px;
     padding: 3rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-    text-align: center;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
 }
 
-.confetti {
+.victory-modal.show .victory-modal-content {
+    transform: scale(1);
+}
+
+.victory-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.confetti-icon {
     font-size: 4rem;
     margin-bottom: 1rem;
     animation: bounce 1s ease infinite;
@@ -105,19 +122,19 @@ body {
     font-size: 2.5rem;
     color: #111827;
     margin-bottom: 0.5rem;
+    font-weight: 700;
 }
 
 .victory-subtitle {
     font-size: 1.25rem;
     color: #6B7280;
-    margin-bottom: 2rem;
 }
 
 .victory-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     padding: 2rem;
     background: #F9FAFB;
     border-radius: 12px;
@@ -139,6 +156,7 @@ body {
     color: #6B7280;
     text-transform: uppercase;
     font-weight: 600;
+    letter-spacing: 0.05em;
 }
 
 .path-section {
@@ -150,12 +168,34 @@ body {
     font-size: 1.5rem;
     color: #111827;
     margin-bottom: 1rem;
+    font-weight: 600;
 }
 
 .path-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+}
+
+.path-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.path-list::-webkit-scrollbar-track {
+    background: #F3F4F6;
+    border-radius: 4px;
+}
+
+.path-list::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 4px;
+}
+
+.path-list::-webkit-scrollbar-thumb:hover {
+    background: #9CA3AF;
 }
 
 .path-item {
@@ -166,13 +206,18 @@ body {
     background: #F3F4F6;
     border-radius: 8px;
     border-left: 4px solid #8B5CF6;
+    transition: transform 0.2s ease;
+}
+
+.path-item:hover {
+    transform: translateX(4px);
 }
 
 .path-number {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
+    min-width: 2rem;
     height: 2rem;
     background: #8B5CF6;
     color: white;
@@ -184,6 +229,7 @@ body {
 .path-page {
     font-weight: 500;
     color: #111827;
+    flex: 1;
 }
 
 .dead-ends-section {
@@ -195,6 +241,7 @@ body {
     font-size: 1.125rem;
     color: #111827;
     margin-bottom: 0.75rem;
+    font-weight: 600;
 }
 
 .dead-ends-list {
@@ -213,6 +260,9 @@ body {
 }
 
 .victory-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
     margin-top: 2rem;
 }
 
@@ -224,6 +274,9 @@ body {
     font-weight: 600;
     font-size: 1rem;
     transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
 }
 
 .btn-primary {
@@ -233,22 +286,76 @@ body {
 
 .btn-primary:hover {
     background: #4F46E5;
-    transform: scale(1.05);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
 
+.btn-secondary {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.btn-secondary:hover {
+    background: #D1D5DB;
+}
+
+/* Animation confetti */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+.confetti-piece {
+    position: absolute;
+    top: -10%;
+    font-size: 2rem;
+    animation: confetti-fall linear forwards;
+    opacity: 0;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(0) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(100vh) rotate(720deg);
+    }
+}
+
+/* Responsive */
 @media (max-width: 768px) {
-    .victory-card {
+    .victory-modal-content {
         padding: 2rem 1.5rem;
+        margin: 1rem;
     }
 
     .victory-stats {
         grid-template-columns: 1fr;
         gap: 1.5rem;
+        padding: 1.5rem;
     }
 
     .victory-title {
         font-size: 2rem;
     }
+
+    .stat-large .stat-value {
+        font-size: 2rem;
+    }
+
+    .victory-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+    }
 }
 </style>
-{% endblock %}

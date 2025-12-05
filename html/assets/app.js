@@ -16,5 +16,24 @@ import './bootstrap.js';
 // Importe les styles
 import './styles/app.css';
 import './styles/game.css';
+import './styles/wiki.css';
+import './styles/popover.css';
 
-console.log('✓ Wiki Game loaded!');
+// 🎯 Bloquer Ctrl+F
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Vérifier si on est sur une page de jeu
+    const isGamePage = document.getElementById('wiki-content')
+
+    if (isGamePage) {
+        document.addEventListener('keydown', (event) => {
+            // Détecter Ctrl+F ou Cmd+F
+            if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'g')) {
+                event.preventDefault();
+                event.stopPropagation();
+                console.log('🔍 Recherche bloquée pendant le jeu !');
+                return false;
+            }
+        });
+    }
+});
