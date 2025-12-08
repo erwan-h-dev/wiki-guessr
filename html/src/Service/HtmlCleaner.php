@@ -63,6 +63,8 @@ class HtmlCleaner
             '//*[@role="navigation"]',
             '//sup[contains(@class, "reference")]',
             '//*[contains(@class, "mw-editsection")]',
+            //'//*[@id="Annexes"]//ancestor::*[contains(@class, "mw-heading")]',
+            //'//*[@id="Annexes"]//following-sibling::*',
         ];
 
         $selectorsToDisable = [

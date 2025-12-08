@@ -11,7 +11,7 @@ export default class extends Controller {
 
         // Initialiser l'historique
         this.history = [];
-        this.currentIndex = -1;
+        this.currentIndex = 0;
 
         // Créer une référence stable à la méthode pour pouvoir la supprimer
         this.boundHandleLinkClick = this.handleLinkClick.bind(this);
@@ -57,14 +57,16 @@ export default class extends Controller {
 
     loadPage(title, addToHistory = true) {
         console.log('📄 Loading page:', title);
-
         // Utiliser l'API Turbo Frame pour charger le contenu
         this.frameTarget.src = `/game/${this.gameIdValue}/page/${title}`;
 
         // Gérer l'historique après le chargement
         if (addToHistory) {
+            debugger;
+
             // Écouter la fin du chargement du frame
             this.frameTarget.addEventListener('turbo:frame-load', () => {
+
                 this.addToHistory(title);
             }, { once: true });
         }

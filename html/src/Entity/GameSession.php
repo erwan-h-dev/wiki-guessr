@@ -32,6 +32,10 @@ class GameSession
     #[ORM\Column]
     private ?bool $completed = false;
 
+    #[ORM\ManyToOne(targetEntity: Player::class, inversedBy: 'gameSessions')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Player $player = null;
+
     #[ORM\ManyToOne(targetEntity: Challenge::class, inversedBy: 'gameSessions')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Challenge $challenge = null;
@@ -121,6 +125,18 @@ class GameSession
     public function setChallenge(?Challenge $challenge): static
     {
         $this->challenge = $challenge;
+
+        return $this;
+    }
+
+    public function getPlayer(): ?Player
+    {
+        return $this->player;
+    }
+
+    public function setPlayer(?Player $player): static
+    {
+        $this->player = $player;
 
         return $this;
     }

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Challenge;
 use App\Entity\GameSession;
+use App\Entity\Player;
 use App\Service\WikipediaService;
 use App\Service\HtmlCleaner;
 use App\Service\GameNavigationService;
@@ -28,11 +29,15 @@ final class GameController extends AbstractController
     }
 
     #[Route('/{id}', name: 'game_start')]
-    public function start(Challenge $challenge): Response
+    public function start(Request $request, Challenge $challenge): Response
     {
+        // Get the current player from request attributes (set by PlayerSubscriber)
+        $player = $request->attributes->get('_player');
+
         // Create a new game session
         $session = new GameSession();
         $session->setChallenge($challenge);
+        $session->setPlayer($player);
         $session->setStartTime(new DateTime());
         $session->setCompleted(false);
 
