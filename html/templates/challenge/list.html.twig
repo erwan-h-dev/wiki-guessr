@@ -36,7 +36,7 @@
         {% else %}
             <div class="challenges-grid">
                 {% for challenge in challenges %}
-                    <a href="{{ path('game_start', {id: challenge.id}) }}" class="challenge-card">
+                    <a href="{{ path('game_start', {id: challenge.id}) }}" class="challenge-card" data-turbo-prefetch="false">
                         <div class="challenge-header">
                             <h3 class="challenge-title">{{ challenge.name }}</h3>
                             <span class="difficulty-badge difficulty-{{ challenge.difficulty }}">

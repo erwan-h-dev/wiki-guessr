@@ -7,7 +7,7 @@
         class="game-container"
         data-controller="wiki-history"
         data-wiki-history-game-id-value="{{ session.id }}"
-        data-start-page="{{ challenge.startPage }}"
+        data-start-page="{{ session.path|last }}"
     >
         {# Header du jeu #}
         <div class="game-header">

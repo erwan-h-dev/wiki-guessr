@@ -34,19 +34,26 @@ final class GameController extends AbstractController
         // Get the current player from request attributes (set by PlayerSubscriber)
         $player = $request->attributes->get('_player');
 
-        // Create a new game session
-        $session = new GameSession();
-        $session->setChallenge($challenge);
-        $session->setPlayer($player);
-        $session->setStartTime(new DateTime());
-        $session->setCompleted(false);
+        $session = $this->entityManager->getRepository(GameSession::class)
+            ->findOneBy([
+                'challenge' => $challenge,
+                'player' => $player
+            ]);
+        if (!$session) {
+            // Create a new game session
+            $session = new GameSession();
+            $session->setChallenge($challenge);
+            $session->setPlayer($player);
+            $session->setStartTime(new DateTime());
+            $session->setCompleted(false);
 
-        // Initialize path with start page
-        $session->setPath([$challenge->getStartPage()]);
-        $session->addPageVisit($challenge->getStartPage());
+            // Initialize path with start page
+            $session->setPath([$challenge->getStartPage()]);
+            $session->addPageVisit($challenge->getStartPage());
 
-        $this->entityManager->persist($session);
-        $this->entityManager->flush();
+            $this->entityManager->persist($session);
+            $this->entityManager->flush();
+        }
 
         return $this->render('game/play.html.twig', [
             'session' => $session,
@@ -58,8 +65,17 @@ final class GameController extends AbstractController
     public function page(Request $request, GameSession $session, string $title): Response
     {
         if ($session->isCompleted()) {
-            return $this->render('game/completed.html.twig', [
-                'session' => $session,
+            $statistics = $this->navigationService->calculateStatistics($session);
+            // Pour les requêtes Turbo Frame, utiliser Turbo Stream pour afficher un message
+            if ($request->headers->has('Turbo-Frame')) {
+                $html = $this->renderView('game/_game_already_finished.html.twig', [
+                    'session' => $session,
+                    'statistics' => $statistics
+                ]);
+                return new Response($html, 200, ['Content-Type' => 'text/vnd.turbo-stream.html']);
+            }
+            return $this->redirectToRoute('game_finished', [
+                'id' => $session->getId()
             ]);
         }
 
@@ -96,6 +112,7 @@ final class GameController extends AbstractController
             $html = $this->renderView('game/_wiki_content.html.twig', $params);
             return new Response($html, 200, ['Content-Type' => 'text/vnd.turbo-stream.html']);
         }
+
         // Chargement direct (non-frame)
         return $this->render('game/_wiki_content.html.twig', $params);
     }
@@ -118,5 +135,23 @@ final class GameController extends AbstractController
                 'error' => 'Unable to fetch page preview',
             ], 404);
         }
+    }
+
+    #[Route('/{id}/finished', name: 'game_finished')]
+    public function finished(GameSession $session): Response
+    {
+        if (!$session->isCompleted()) {
+            return $this->redirectToRoute('game_start', [
+                'id' => $session->getChallenge()->getId()
+            ]);
+        }
+
+        $statistics = $this->navigationService->calculateStatistics($session);
+
+        return $this->render('game/finished.html.twig', [
+            'session' => $session,
+            'challenge' => $session->getChallenge(),
+            'statistics' => $statistics,
+        ]);
     }
 }

@@ -6,6 +6,9 @@ export default class extends Controller {
     connect() {
         console.log('🎉 Victory controller connected');
 
+        // Émettre un événement pour arrêter le timer
+        document.dispatchEvent(new Event('game:victory'));
+
         // Afficher la modal avec une petite animation
         setTimeout(() => {
             this.showModal();
@@ -21,6 +24,19 @@ export default class extends Controller {
 
             // Empêcher le scroll du body
             document.body.style.overflow = 'hidden';
+        }
+    }
+
+    stopGameTimer() {
+        // Trouver le contrôleur du timer et l'arrêter
+        const timerElement = document.querySelector('[data-controller~="timer"]');
+        if (timerElement) {
+            // Récupérer le contrôleur Stimulus pour l'élément
+            const timerController = this.application.getControllerForElementAndIdentifier(timerElement, 'timer');
+            if (timerController && timerController.stopTimer) {
+                timerController.stopTimer();
+                console.log('⏱️ Timer stopped');
+            }
         }
     }
 

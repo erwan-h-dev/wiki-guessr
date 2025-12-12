@@ -1,16 +1,17 @@
-{# Modal de victoire #}
-<div class="victory-modal"
-     data-controller="victory"
-     data-victory-target="modal"
-     data-action="click->victory#handleBackdropClick">
-    <div class="victory-modal-content">
-        <div class="victory-header">
+{% extends 'base.html.twig' %}
+
+{% block title %}Partie terminée - Wiki Guessr{% endblock %}
+
+{% block body %}
+<div class="finished-container">
+    <div class="finished-card">
+        <div class="finished-header">
             <div class="confetti-icon">🎉</div>
-            <h1 class="victory-title">Félicitations !</h1>
-            <p class="victory-subtitle">Vous avez atteint votre objectif !</p>
+            <h1 class="finished-title">Félicitations !</h1>
+            <p class="finished-subtitle">Vous avez atteint votre objectif !</p>
         </div>
 
-        <div class="victory-stats">
+        <div class="finished-stats">
             <div class="stat-large">
                 <div class="stat-value">
                     {% set minutes = (statistics.duration / 60)|round(0, 'floor') %}
@@ -54,55 +55,43 @@
             </div>
         {% endif %}
 
-        <div class="victory-actions">
-            <a href="{{ path('challenges') }}" class="btn btn-primary" data-turbo="false">Nouveau défi</a>
-            <button type="button" class="btn btn-secondary" data-action="click->victory#close">Fermer</button>
+        <div class="finished-actions">
+            <a href="{{ path('challenges') }}" class="btn btn-primary">Nouveau défi</a>
+            <a href="{{ path('game_start', {'id': challenge.id}) }}" class="btn btn-secondary">Rejouer ce défi</a>
         </div>
     </div>
 </div>
 
 <style>
-.victory-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #F9FAFB;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding: 1rem;
-    overflow-y: auto;
+    padding: 2rem;
 }
 
-.victory-modal.show {
-    opacity: 1;
-    visibility: visible;
+.finished-container {
+    width: 100%;
+    max-width: 800px;
 }
 
-.victory-modal-content {
+.finished-card {
     background: white;
     border-radius: 16px;
     padding: 3rem;
-    max-width: 800px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-.victory-modal.show .victory-modal-content {
-    transform: scale(1);
-}
-
-.victory-header {
+.finished-header {
     text-align: center;
     margin-bottom: 2rem;
 }
@@ -118,19 +107,19 @@
     50% { transform: translateY(-10px); }
 }
 
-.victory-title {
+.finished-title {
     font-size: 2.5rem;
     color: #111827;
     margin-bottom: 0.5rem;
     font-weight: 700;
 }
 
-.victory-subtitle {
+.finished-subtitle {
     font-size: 1.25rem;
     color: #6B7280;
 }
 
-.victory-stats {
+.finished-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
@@ -259,7 +248,7 @@
     font-weight: 500;
 }
 
-.victory-actions {
+.finished-actions {
     display: flex;
     gap: 1rem;
     justify-content: center;
@@ -297,52 +286,22 @@
 
 .btn-secondary:hover {
     background: #D1D5DB;
-}
-
-/* Animation confetti */
-.confetti-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 10000;
-}
-
-.confetti-piece {
-    position: absolute;
-    top: -10%;
-    font-size: 2rem;
-    animation: confetti-fall linear forwards;
-    opacity: 0;
-}
-
-@keyframes confetti-fall {
-    0% {
-        opacity: 1;
-        transform: translateY(0) rotate(0deg);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(100vh) rotate(720deg);
-    }
+    transform: translateY(-2px);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .victory-modal-content {
+    .finished-card {
         padding: 2rem 1.5rem;
-        margin: 1rem;
     }
 
-    .victory-stats {
+    .finished-stats {
         grid-template-columns: 1fr;
         gap: 1.5rem;
         padding: 1.5rem;
     }
 
-    .victory-title {
+    .finished-title {
         font-size: 2rem;
     }
 
@@ -350,7 +309,7 @@
         font-size: 2rem;
     }
 
-    .victory-actions {
+    .finished-actions {
         flex-direction: column;
     }
 
@@ -359,3 +318,4 @@
     }
 }
 </style>
+{% endblock %}

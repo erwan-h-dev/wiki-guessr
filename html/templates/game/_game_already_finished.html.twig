@@ -1,0 +1,324 @@
+<turbo-stream action="update" target="wiki-content">
+    <template>
+        <div class="wiki-page">
+            <div class="wiki-content">
+                <div class="victory-header">
+                    <h1 class="victory-title">Partie terminée</h1>
+                    <p class="victory-subtitle">Vous avez déjà atteint l'objectif !</p>
+                </div>
+
+
+                <div class="victory-stats">
+                    <div class="stat-large">
+                        <div class="stat-value">
+                            {% set minutes = (statistics.duration / 60)|round(0, 'floor') %}
+                            {% set seconds = statistics.duration % 60 %}
+                            {{ '%02d'|format(minutes) }}:{{ '%02d'|format(seconds) }}
+                        </div>
+                        <div class="stat-label">Temps total</div>
+                    </div>
+
+                    <div class="stat-large">
+                        <div class="stat-value">{{ statistics.pathLength }}</div>
+                        <div class="stat-label">Pages visitées</div>
+                    </div>
+
+                    <div class="stat-large">
+                        <div class="stat-value">{{ statistics.efficiency }}%</div>
+                        <div class="stat-label">Efficacité</div>
+                    </div>
+                </div>
+
+                <div class="path-section">
+                    <h2>Votre chemin victorieux</h2>
+                    <div class="path-list">
+                        {% for page in statistics.path %}
+                            <div class="path-item">
+                                <span class="path-number">{{ loop.index }}</span>
+                                <span class="path-page">{{ page|replace({'_': ' '}) }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                {% if statistics.deadEndCount > 0 %}
+                    <div class="dead-ends-section">
+                        <h3>Impasses explorées ({{ statistics.deadEndCount }})</h3>
+                        <div class="dead-ends-list">
+                            {% for page in statistics.deadEnds %}
+                                <span class="dead-end-badge">{{ page|replace({'_': ' '}) }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="victory-actions">
+                    <a href="{{ path('challenges') }}" class="btn btn-primary" data-turbo="false">Nouveau défi</a>
+                </div>
+            </div>
+        </div>
+        <style>
+            .victory-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 9999;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+                padding: 1rem;
+                overflow-y: auto;
+            }
+
+            .victory-modal.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .victory-modal-content {
+                background: #ffffff;
+                border-radius: 16px;
+                padding: 3rem;
+                max-width: 800px;
+                width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            }
+
+            .victory-modal.show .victory-modal-content {
+                transform: scale(1);
+            }
+
+            .victory-header {
+                text-align: center;
+                margin-bottom: 2rem;
+            }
+
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-10px); }
+            }
+
+            .victory-title {
+                font-size: 2.5rem;
+                color: #111827;
+                margin-bottom: 0.5rem;
+                font-weight: 700;
+            }
+
+            .victory-subtitle {
+                font-size: 1.25rem;
+                color: #6B7280;
+            }
+
+            .victory-stats {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 2rem;
+                margin-bottom: 2rem;
+                padding: 2rem;
+                background: #F9FAFB;
+                border-radius: 12px;
+            }
+
+            .stat-large {
+                text-align: center;
+            }
+
+            .stat-large .stat-value {
+                font-size: 2.5rem;
+                font-weight: 700;
+                color: #6366F1;
+                margin-bottom: 0.5rem;
+            }
+
+            .stat-large .stat-label {
+                font-size: 0.875rem;
+                color: #6B7280;
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+            }
+
+            .path-section {
+                margin-bottom: 2rem;
+                text-align: left;
+            }
+
+            .path-section h2 {
+                font-size: 1.5rem;
+                color: #111827;
+                margin-bottom: 1rem;
+                font-weight: 600;
+            }
+
+            .path-list {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                max-height: 300px;
+                overflow-y: auto;
+                padding-right: 0.5rem;
+            }
+
+            .path-list::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .path-list::-webkit-scrollbar-track {
+                background: #F3F4F6;
+                border-radius: 4px;
+            }
+
+            .path-list::-webkit-scrollbar-thumb {
+                background: #D1D5DB;
+                border-radius: 4px;
+            }
+
+            .path-list::-webkit-scrollbar-thumb:hover {
+                background: #9CA3AF;
+            }
+
+            .path-item {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                padding: 0.75rem 1rem;
+                background: #F3F4F6;
+                border-radius: 8px;
+                border-left: 4px solid #8B5CF6;
+                transition: transform 0.2s ease;
+            }
+
+            .path-item:hover {
+                transform: translateX(4px);
+            }
+
+            .path-number {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 2rem;
+                height: 2rem;
+                background: #8B5CF6;
+                color: #ffffff;
+                border-radius: 50%;
+                font-weight: 700;
+                font-size: 0.875rem;
+            }
+
+            .path-page {
+                font-weight: 500;
+                color: #111827;
+                flex: 1;
+            }
+
+            .dead-ends-section {
+                margin-bottom: 2rem;
+                text-align: left;
+            }
+
+            .dead-ends-section h3 {
+                font-size: 1.125rem;
+                color: #111827;
+                margin-bottom: 0.75rem;
+                font-weight: 600;
+            }
+
+            .dead-ends-list {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .dead-end-badge {
+                padding: 0.5rem 1rem;
+                background: #FEE2E2;
+                color: #991B1B;
+                border-radius: 6px;
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .victory-actions {
+                display: flex;
+                gap: 1rem;
+                justify-content: center;
+                margin-top: 2rem;
+            }
+
+            .btn {
+                display: inline-block;
+                padding: 0.875rem 2rem;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 1rem;
+                transition: all 0.2s;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
+            }
+
+            .btn-primary {
+                background: #6366F1;
+                color: #ffffff;
+            }
+
+            .btn-primary:hover {
+                background: #4F46E5;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+            }
+
+            .btn-secondary {
+                background: #E5E7EB;
+                color: #374151;
+            }
+
+            .btn-secondary:hover {
+                background: #D1D5DB;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .victory-modal-content {
+                    padding: 2rem 1.5rem;
+                    margin: 1rem;
+                }
+
+                .victory-stats {
+                    grid-template-columns: 1fr;
+                    gap: 1.5rem;
+                    padding: 1.5rem;
+                }
+
+                .victory-title {
+                    font-size: 2rem;
+                }
+
+                .stat-large .stat-value {
+                    font-size: 2rem;
+                }
+
+                .victory-actions {
+                    flex-direction: column;
+                }
+
+                .btn {
+                    width: 100%;
+                }
+            }
+        </style>
+
+    </template>
+</turbo-stream>

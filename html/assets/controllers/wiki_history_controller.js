@@ -62,7 +62,6 @@ export default class extends Controller {
 
         // Gérer l'historique après le chargement
         if (addToHistory) {
-            debugger;
 
             // Écouter la fin du chargement du frame
             this.frameTarget.addEventListener('turbo:frame-load', () => {
