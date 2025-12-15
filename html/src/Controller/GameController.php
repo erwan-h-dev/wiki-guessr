@@ -4,10 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Challenge;
 use App\Entity\GameSession;
-use App\Entity\Player;
 use App\Service\WikipediaService;
 use App\Service\HtmlCleaner;
 use App\Service\GameNavigationService;
+use App\Service\MultiplayerGameService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -24,7 +24,8 @@ final class GameController extends AbstractController
         private readonly WikipediaService $wikipediaService,
         private readonly HtmlCleaner $htmlCleaner,
         private readonly GameNavigationService $navigationService,
-        private readonly EntityManagerInterface $entityManager
+        private readonly EntityManagerInterface $entityManager,
+        private readonly MultiplayerGameService $multiplayerGameService,
     ) {
     }
 
@@ -53,6 +54,11 @@ final class GameController extends AbstractController
 
             $this->entityManager->persist($session);
             $this->entityManager->flush();
+        } else if ($session->isCompleted()) {
+            // Si la session est déjà terminée, rediriger vers la page de résultats
+            return $this->redirectToRoute('game_finished', [
+                'id' => $session->getId()
+            ]);
         }
 
         return $this->render('game/play.html.twig', [
@@ -96,8 +102,21 @@ final class GameController extends AbstractController
             $session->complete();
             $this->entityManager->flush();
 
+            // Notify multiplayer service if this is a multiplayer game
+            $multiplayerParticipant = $session->getMultiplayerParticipant();
+            if ($multiplayerParticipant !== null) {
+                try {
+                    $this->multiplayerGameService->playerFinished($multiplayerParticipant);
+                } catch (\Exception $e) {
+                    // Log but don't fail the game if multiplayer sync fails
+                    error_log('Multiplayer sync error: ' . $e->getMessage());
+                }
+            }
+
             $statistics = $this->navigationService->calculateStatistics($session);
         }
+
+        $isMultiplayer = $session->getMultiplayerParticipant() !== null;
 
         $params = [
             'content' => $cleanedContent,
@@ -105,6 +124,8 @@ final class GameController extends AbstractController
             'session' => $session,
             'challenge' => $session->getChallenge(),
             'statistics' => $statistics,
+            'isMultiplayer' => $isMultiplayer,
+            'multiplayerGame' => $isMultiplayer ? $session->getMultiplayerParticipant()->getMultiplayerGame() : null,
         ];
 
         // Requête depuis un Turbo Frame : renvoyer turbo-streams
@@ -143,6 +164,14 @@ final class GameController extends AbstractController
         if (!$session->isCompleted()) {
             return $this->redirectToRoute('game_start', [
                 'id' => $session->getChallenge()->getId()
+            ]);
+        }
+
+        // If this is a multiplayer game, redirect to multiplayer results
+        $multiplayerParticipant = $session->getMultiplayerParticipant();
+        if ($multiplayerParticipant !== null) {
+            return $this->redirectToRoute('multiplayer_results', [
+                'id' => $multiplayerParticipant->getMultiplayerGame()->getId()
             ]);
         }
 

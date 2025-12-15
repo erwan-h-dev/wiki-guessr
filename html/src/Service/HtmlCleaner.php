@@ -57,6 +57,10 @@ class HtmlCleaner
             '//*[@id="Liens_externes"]//following-sibling::*',
             '//*[@id="Voir_aussi"]//ancestor::*[contains(@class, "mw-heading")]',
             '//*[@id="Voir_aussi"]//following-sibling::*',
+            '//*[@id="Bibliographie"]//ancestor::*[contains(@class, "mw-heading")]',
+            '//*[@id="Bibliographie"]//following-sibling::*',
+            '//*[@id="Autres_projets"]//ancestor::*[contains(@class, "mw-heading")]',
+            '//*[@id="Autres_projets"]//following-sibling::*',
             '//*[contains(@class, "reference")]',
             '//*[contains(@class, "reflist")]',
             '//*[contains(@class, "navbox")]',
@@ -110,8 +114,8 @@ class HtmlCleaner
                 // Extract page title from URL
                 $pageTitle = urldecode(substr($href, 6));
 
-                // Skip special pages (Help:, Wikipedia:, File:, etc.)
-                if (preg_match('/^([A-Z][a-z]+:|Special:)/i', $pageTitle)) {
+                // Skip special pages (Help:, Wikipedia:, File:, Aide:, Special:, etc.)
+                if (preg_match('/^(Aide|Help|Wikipedia|File|Fichier|Special|Modèle|Template|Catégorie|Category|User|Utilisateur):/iu', $pageTitle)) {
                     continue;
                 }
 

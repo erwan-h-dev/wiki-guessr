@@ -27,7 +27,7 @@ class Player
     private ?\DateTimeInterface $lastSeenAt = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $nickname = null;
+    private ?string $username = null;
 
     /**
      * @var Collection<int, GameSession>
@@ -96,18 +96,6 @@ class Player
         return $this;
     }
 
-    public function getNickname(): ?string
-    {
-        return $this->nickname;
-    }
-
-    public function setNickname(?string $nickname): static
-    {
-        $this->nickname = $nickname;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, GameSession>
      */
@@ -155,5 +143,15 @@ class Player
         }
 
         return ($this->getCompletedGames() / $total) * 100;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->username;
+    }
+
+    public function setUsername(?string $username): void
+    {
+        $this->username = $username;
     }
 }

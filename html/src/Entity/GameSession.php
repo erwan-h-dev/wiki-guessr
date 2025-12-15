@@ -40,6 +40,10 @@ class GameSession
     #[ORM\JoinColumn(nullable: false)]
     private ?Challenge $challenge = null;
 
+    #[ORM\OneToOne(inversedBy: 'gameSession')]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    private ?MultiplayerParticipant $multiplayerParticipant = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +141,18 @@ class GameSession
     public function setPlayer(?Player $player): static
     {
         $this->player = $player;
+
+        return $this;
+    }
+
+    public function getMultiplayerParticipant(): ?MultiplayerParticipant
+    {
+        return $this->multiplayerParticipant;
+    }
+
+    public function setMultiplayerParticipant(?MultiplayerParticipant $multiplayerParticipant): static
+    {
+        $this->multiplayerParticipant = $multiplayerParticipant;
 
         return $this;
     }

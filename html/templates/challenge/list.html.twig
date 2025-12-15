@@ -23,7 +23,7 @@
     <main class="game-modes challenges-page">
         <h2 class="section-title">Défis disponibles</h2>
 
-        {% if challenges is empty %}
+        {% if challengesData is empty %}
             <div class="empty-state">
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/>
@@ -35,52 +35,53 @@
             </div>
         {% else %}
             <div class="challenges-grid">
-                {% for challenge in challenges %}
+                {% for challengeData in challengesData %}
+                    {% set challenge = challengeData.challenge %}
                     <a href="{{ path('game_start', {id: challenge.id}) }}" class="challenge-card" data-turbo-prefetch="false">
-                        <div class="challenge-header">
-                            <h3 class="challenge-title">{{ challenge.name }}</h3>
-                            <span class="difficulty-badge difficulty-{{ challenge.difficulty }}">
-                                {{ challenge.difficulty|capitalize }}
-                            </span>
+                        <div class="challenge-info">
+                            <div class="challenge-header">
+                                <h3 class="challenge-title">
+                                    <span class="route-page-compact">{{ challenge.startPage }}</span>
+                                    <span class="route-arrow-compact">→</span>
+                                    <span class="route-page-compact">{{ challenge.endPage }}</span>
+                                </h3>
+                                <span class="difficulty-badge difficulty-{{ challenge.difficulty }}">
+                                    {{ challenge.difficulty|capitalize }}
+                                </span>
+                            </div>
+
+{#                            <div class="challenge-route-compact">#}
+{#                                <span class="route-page-compact">{{ challenge.startPage }}</span>#}
+{#                                <span class="route-arrow-compact">→</span>#}
+{#                                <span class="route-page-compact">{{ challenge.endPage }}</span>#}
+{#                            </div>#}
                         </div>
 
-                        <div class="challenge-route">
-                            <div class="route-point">
-                                <span class="route-label">Départ</span>
-                                <div class="route-page start">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
-                                        <polyline points="14 2 14 8 20 8"/>
-                                    </svg>
-                                    <span>{{ challenge.startPage }}</span>
+                        {% if challengeData.session %}
+                            {% set session =  challengeData.session %}
+                            {% set stats = session.path|length %}
+                            {% set duration = session.durationSeconds %}
+                            {% set minutes = (duration / 60)|round(0, 'floor') %}
+                            {% set seconds = duration % 60 %}
+                            <div class="challenge-result">
+                                <div class="result-stats">
+                                    <div class="result-badge completed">Complété</div>
+
+                                    <span class="stat-item">
+                                        <span class="stat-label">Temps</span>
+                                        <span class="stat-value">{{ '%02d:%02d'|format(minutes, seconds) }}</span>
+                                    </span>
+                                    <span class="stat-item">
+                                        <span class="stat-label">Pages</span>
+                                        <span class="stat-value">{{ stats }}</span>
+                                    </span>
                                 </div>
                             </div>
-
-                            <div class="route-arrow">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <line x1="5" y1="12" x2="19" y2="12"/>
-                                    <polyline points="12 5 19 12 12 19"/>
-                                </svg>
+                        {% else %}
+                            <div class="challenge-result">
+                                <div class="result-badge pending">À jouer</div>
                             </div>
-
-                            <div class="route-point">
-                                <span class="route-label">Arrivée</span>
-                                <div class="route-page end">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                                        <polyline points="22 4 12 14.01 9 11.01"/>
-                                    </svg>
-                                    <span>{{ challenge.endPage }}</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="challenge-action">
-                            <span class="action-text">Commencer le défi</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polygon points="5 3 19 12 5 21 5 3"/>
-                            </svg>
-                        </div>
+                        {% endif %}
                     </a>
                 {% endfor %}
             </div>
