@@ -7,17 +7,25 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    {# CSS compilé par Webpack #}
+    {# CSS compilÃ© par Webpack #}
     {% block stylesheets %}
         {{ encore_entry_link_tags('app') }}
+        {% block page_stylesheets %}{% endblock %}
     {% endblock %}
 
-    {# JavaScript compilé par Webpack #}
+    {# JavaScript compilÃ© par Webpack #}
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
+        {% block page_scripts %}{% endblock %}
     {% endblock %}
 </head>
 <body>
+{# Username modal - always included, visibility controlled by Stimulus and subscriber #}
+    {% include 'components/username_modal.html.twig' with {
+        show_username_modal: app.request.attributes.get('_show_username_modal', false),
+        player: player
+    } only %}
     {% block body %}{% endblock %}
+    {% include 'footer.html.twig' %}
 </body>
 </html>

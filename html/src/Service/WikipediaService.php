@@ -146,6 +146,56 @@ class WikipediaService
     }
 
     /**
+     * Search Wikipedia pages by title
+     *
+     * @param string $query Search query
+     * @param int $limit Maximum number of results
+     * @return array{titles: array<string>}
+     * @throws Exception if an error occurs
+     */
+    public function searchPages(string $query, int $limit = 10): array
+    {
+        if (strlen($query) < 2) {
+            return ['titles' => []];
+        }
+
+        $cacheKey = $this->generateCacheKey('search', $query . '_' . $limit);
+
+        return $this->cache->get($cacheKey, function (ItemInterface $item) use ($query, $limit) {
+            $item->expiresAfter(3600); // Cache for 1 hour
+
+            try {
+                $response = $this->httpClient->request('GET', self::API_ENDPOINT, [
+                    'query' => [
+                        'action' => 'opensearch',
+                        'search' => $query,
+                        'limit' => $limit,
+                        'namespace' => 0,
+                        'format' => 'json',
+                    ],
+                    'timeout' => self::TIMEOUT,
+                ]);
+
+                $data = $response->toArray();
+
+                if (isset($data[1]) && is_array($data[1])) {
+                    $this->logger->info('Wikipedia search completed', ['query' => $query, 'results' => count($data[1])]);
+                    return ['titles' => $data[1]];
+                }
+
+                return ['titles' => []];
+
+            } catch (TransportExceptionInterface $e) {
+                $this->logger->error('Wikipedia search error', [
+                    'query' => $query,
+                    'message' => $e->getMessage(),
+                ]);
+                throw new Exception(sprintf('Error searching Wikipedia: %s', $e->getMessage()), 0, $e);
+            }
+        });
+    }
+
+    /**
      * Generate a cache key for Wikipedia content
      */
     private function generateCacheKey(string $type, string $title): string

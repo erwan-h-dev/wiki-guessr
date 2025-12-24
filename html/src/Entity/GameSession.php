@@ -37,8 +37,14 @@ class GameSession
     private ?Player $player = null;
 
     #[ORM\ManyToOne(targetEntity: Challenge::class, inversedBy: 'gameSessions')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\JoinColumn(nullable: true)]
     private ?Challenge $challenge = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $customStartPage = null;
+
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $customEndPage = null;
 
     #[ORM\OneToOne(inversedBy: 'gameSession')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -131,6 +137,40 @@ class GameSession
         $this->challenge = $challenge;
 
         return $this;
+    }
+
+    public function getCustomStartPage(): ?string
+    {
+        return $this->customStartPage;
+    }
+
+    public function setCustomStartPage(?string $customStartPage): static
+    {
+        $this->customStartPage = $customStartPage;
+
+        return $this;
+    }
+
+    public function getCustomEndPage(): ?string
+    {
+        return $this->customEndPage;
+    }
+
+    public function setCustomEndPage(?string $customEndPage): static
+    {
+        $this->customEndPage = $customEndPage;
+
+        return $this;
+    }
+
+    public function getStartPage(): string
+    {
+        return $this->customStartPage ?? $this->challenge?->getStartPage() ?? '';
+    }
+
+    public function getEndPage(): string
+    {
+        return $this->customEndPage ?? $this->challenge?->getEndPage() ?? '';
     }
 
     public function getPlayer(): ?Player

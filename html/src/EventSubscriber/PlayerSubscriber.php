@@ -40,6 +40,10 @@ class PlayerSubscriber implements EventSubscriberInterface
         // Récupère ou crée le Player basé sur le cookie
         $player = $this->playerService->getOrCreatePlayer($request);
 
+        if(!$player->getUsername()) {
+            $request->attributes->set('_show_username_modal', true);
+        }
+
         // Stocke le Player dans les attributs de la requête pour y accéder dans les contrôleurs
         $request->attributes->set('_player', $player);
     }

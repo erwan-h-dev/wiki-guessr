@@ -1,0 +1,121 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Résultats Multijoueur - Wiki Game{% endblock %}
+
+{% block page_stylesheets %}
+    {{ encore_entry_link_tags('landing') }}
+{% endblock %}
+
+{% block page_scripts %}
+{#    {{ encore_entry_script_tags('multiplayer') }}#}
+{% endblock %}
+
+{% block body %}
+<div class="landing-container">
+    <header class="header">
+        <h1 class="main-title">🏆 Résultats</h1>
+        <p class="subtitle">Challenge: {{ game.challenge.startPage }} → {{ game.challenge.endPage }}</p>
+    </header>
+
+    <main class="game-modes" style="max-width: 900px;">
+        <!-- Podium -->
+        {% if finishedParticipants|length > 0 %}
+            <div style="display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 1.5rem; margin-bottom: 3rem; align-items: flex-end;">
+                <!-- 2nd Place -->
+                {% if finishedParticipants|length >= 2 %}
+                    <div style="text-align: center; padding: 2rem 1rem; background: #c0c0c0; border-radius: var(--radius-md); position: relative;">
+                        <div style="font-size: 48px; margin-bottom: 1rem;">🥈</div>
+                        <div style="font-weight: 700; margin-bottom: 0.5rem;">{{ finishedParticipants[1].player.username }}</div>
+                        <div style="font-size: 12px; color: #666; margin-bottom: 0.5rem;">2ème place</div>
+                        {% set session = finishedParticipants[1].gameSession %}
+                        {% if session %}
+                            <div style="font-size: 13px; color: #444;">
+                                <div>⏱ {{ '%02d:%02d'|format((session.durationSeconds ?? 0) / 60 | round(0, 'floor'), (session.durationSeconds ?? 0) % 60) }}</div>
+                                <div>📄 {{ session.path|length }} pages</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    <div></div>
+                {% endif %}
+
+                <!-- 1st Place -->
+                <div style="text-align: center; padding: 2.5rem 1rem; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); border-radius: var(--radius-md); position: relative; transform: scale(1.05);">
+                    <div style="font-size: 64px; margin-bottom: 1rem;">🥇</div>
+                    <div style="font-weight: 700; font-size: 18px; margin-bottom: 0.5rem;">{{ finishedParticipants[0].player.username }}</div>
+                    <div style="font-size: 13px; color: #333; margin-bottom: 0.5rem;">1ère place</div>
+                    {% set session = finishedParticipants[0].gameSession %}
+                    {% if session %}
+                        <div style="font-size: 14px; color: #333; font-weight: 600;">
+                            <div>⏱ {{ '%02d:%02d'|format((session.durationSeconds ?? 0) / 60 | round(0, 'floor'), (session.durationSeconds ?? 0) % 60) }}</div>
+                            <div>📄 {{ session.path|length }} pages</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- 3rd Place -->
+                {% if finishedParticipants|length >= 3 %}
+                    <div style="text-align: center; padding: 1.5rem 1rem; background: #cd7f32; border-radius: var(--radius-md);">
+                        <div style="font-size: 48px; margin-bottom: 1rem;">🥉</div>
+                        <div style="font-weight: 700; margin-bottom: 0.5rem;">{{ finishedParticipants[2].player.username }}</div>
+                        <div style="font-size: 12px; color: #fff; margin-bottom: 0.5rem;">3ème place</div>
+                        {% set session = finishedParticipants[2].gameSession %}
+                        {% if session %}
+                            <div style="font-size: 13px; color: #fff;">
+                                <div>⏱ {{ '%02d:%02d'|format((session.durationSeconds ?? 0) / 60 | round(0, 'floor'), (session.durationSeconds ?? 0) % 60) }}</div>
+                                <div>📄 {{ session.path|length }} pages</div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- Full Rankings -->
+        <h2 style="font-size: 24px; font-weight: 600; margin-top: 2rem; margin-bottom: 1.5rem;">📊 Classement Complet</h2>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            {% for participant in finishedParticipants %}
+                {% set session = participant.gameSession %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: white; border-left: 4px solid var(--primary); border-radius: var(--radius-sm); box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1;">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--gray-400); min-width: 40px;">{{ participant.finishPosition }}</div>
+                        <div>
+                            <div style="font-weight: 600; font-size: 16px;">{{ participant.player.username }}</div>
+                            {% if session %}
+                                <div style="font-size: 13px; color: var(--gray-600);">{{ session.path|length }} pages en {{ '%02d:%02d'|format((session.durationSeconds ?? 0) / 60 | round(0, 'floor'), (session.durationSeconds ?? 0) % 60) }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                        ✓ Terminé
+                    </div>
+                </div>
+            {% endfor %}
+
+            <!-- Pending Players -->
+            {% for participant in pendingParticipants %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: var(--gray-50); border-left: 4px solid var(--gray-300); border-radius: var(--radius-sm); opacity: 0.7;">
+                    <div>
+                        <div style="font-weight: 600;">{{ participant.player.username }}</div>
+                        <div style="font-size: 13px; color: var(--gray-600);">En cours...</div>
+                    </div>
+                    <div style="background: var(--gray-300); color: var(--gray-600); padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600;">
+                        ⏳ En attente
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Actions -->
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <a href="{{ path('multiplayer_lobby') }}" style="flex: 1; padding: 1rem; background: var(--gray-200); color: var(--gray-900); text-decoration: none; border-radius: var(--radius-md); font-weight: 600; text-align: center; cursor: pointer;">
+                ← Retour au lobby
+            </a>
+            <a href="{{ path('app_home') }}" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; text-decoration: none; border-radius: var(--radius-md); font-weight: 600; text-align: center; cursor: pointer;">
+                🏠 Accueil
+            </a>
+        </div>
+    </main>
+</div>
+{% endblock %}

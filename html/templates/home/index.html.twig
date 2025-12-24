@@ -46,7 +46,7 @@
             </div>
 
             <!-- Mode Multijoueur -->
-            <div class="mode-card unavailable">
+            <a href="{{ path('multiplayer_lobby') }}" class="mode-card available">
                 <div class="mode-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -57,8 +57,8 @@
                 </div>
                 <h3 class="mode-title">Multijoueur</h3>
                 <p class="mode-description">Affrontez vos amis en temps réel sur le même défi</p>
-                <span class="mode-status">Bientôt disponible</span>
-            </div>
+                <span class="mode-status available">Disponible</span>
+            </a>
 
             <!-- Mode Contre la Montre -->
             <div class="mode-card unavailable">
@@ -101,9 +101,5 @@
             </div>
         </div>
     </main>
-
-    <footer class="footer">
-        <p>Wiki Game - Un jeu de navigation Wikipedia</p>
-    </footer>
 </div>
 {% endblock %}

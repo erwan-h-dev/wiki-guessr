@@ -2,9 +2,11 @@
 
 namespace App\Entity;
 
+use App\Enum\ChallengeMode;
 use App\Repository\ChallengeRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChallengeRepository::class)]
@@ -28,14 +30,27 @@ class Challenge
     private ?string $difficulty = null;
 
     /**
+     * @var array<string>
+     */
+    #[ORM\Column(type: Types::JSON)]
+    private array $modes = [];
+
+    /**
      * @var Collection<int, GameSession>
      */
     #[ORM\OneToMany(targetEntity: GameSession::class, mappedBy: 'challenge')]
     private Collection $gameSessions;
 
+    /**
+     * @var Collection<int, MultiplayerGame>
+     */
+    #[ORM\OneToMany(targetEntity: MultiplayerGame::class, mappedBy: 'challenge')]
+    private Collection $multiplayerGames;
+
     public function __construct()
     {
         $this->gameSessions = new ArrayCollection();
+        $this->multiplayerGames = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -92,6 +107,75 @@ class Challenge
     }
 
     /**
+     * @return array<string>
+     */
+    public function getModes(): array
+    {
+        return $this->modes;
+    }
+
+    /**
+     * @param array<string> $modes
+     */
+    public function setModes(array $modes): static
+    {
+        $this->modes = $modes;
+
+        return $this;
+    }
+
+    /**
+     * Add a mode to the challenge
+     */
+    public function addMode(string|ChallengeMode $mode): static
+    {
+        $modeValue = $mode instanceof ChallengeMode ? $mode->value : $mode;
+
+        if (!in_array($modeValue, $this->modes, true)) {
+            $this->modes[] = $modeValue;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Remove a mode from the challenge
+     */
+    public function removeMode(string|ChallengeMode $mode): static
+    {
+        $modeValue = $mode instanceof ChallengeMode ? $mode->value : $mode;
+
+        $this->modes = array_values(array_filter(
+            $this->modes,
+            fn($m) => $m !== $modeValue
+        ));
+
+        return $this;
+    }
+
+    /**
+     * Check if the challenge has a specific mode
+     */
+    public function hasMode(string|ChallengeMode $mode): bool
+    {
+        $modeValue = $mode instanceof ChallengeMode ? $mode->value : $mode;
+
+        return in_array($modeValue, $this->modes, true);
+    }
+
+    /**
+     * Get modes as ChallengeMode enum instances
+     * @return array<ChallengeMode>
+     */
+    public function getModesAsEnum(): array
+    {
+        return array_map(
+            fn($mode) => ChallengeMode::from($mode),
+            $this->modes
+        );
+    }
+
+    /**
      * @return Collection<int, GameSession>
      */
     public function getGameSessions(): Collection
@@ -115,6 +199,35 @@ class Challenge
             // set the owning side to null (unless already changed)
             if ($gameSession->getChallenge() === $this) {
                 $gameSession->setChallenge(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, MultiplayerGame>
+     */
+    public function getMultiplayerGames(): Collection
+    {
+        return $this->multiplayerGames;
+    }
+
+    public function addMultiplayerGame(MultiplayerGame $multiplayerGame): static
+    {
+        if (!$this->multiplayerGames->contains($multiplayerGame)) {
+            $this->multiplayerGames->add($multiplayerGame);
+            $multiplayerGame->setChallenge($this);
+        }
+
+        return $this;
+    }
+
+    public function removeMultiplayerGame(MultiplayerGame $multiplayerGame): static
+    {
+        if ($this->multiplayerGames->removeElement($multiplayerGame)) {
+            if ($multiplayerGame->getChallenge() === $this) {
+                $multiplayerGame->setChallenge(null);
             }
         }
 

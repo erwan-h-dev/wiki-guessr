@@ -54,7 +54,7 @@ class GameNavigationService
      */
     public function isTargetReached(GameSession $session, string $currentPage): bool
     {
-        return $currentPage === $session->getChallenge()->getEndPage();
+        return $currentPage === $session->getEndPage();
     }
 
     /**

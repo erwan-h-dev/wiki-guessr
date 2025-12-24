@@ -1,0 +1,136 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Lobby Multijoueur - Wiki Game{% endblock %}
+
+{% block page_stylesheets %}
+    {{ encore_entry_link_tags('landing') }}
+{% endblock %}
+
+{% block page_scripts %}
+{#    {{ encore_entry_script_tags('multiplayer') }}#}
+{% endblock %}
+
+{% block body %}
+<div class="landing-container">
+    <header class="header">
+        <a href="{{ path('app_home') }}" class="back-link">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"/>
+                <polyline points="12 19 5 12 12 5"/>
+            </svg>
+            Retour
+        </a>
+        <h1 class="main-title">Mode Multijoueur</h1>
+        <p class="subtitle">Créez une room ou rejoignez une partie en cours</p>
+    </header>
+
+    <main class="game-modes challenges-page">
+        <div style="display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center;">
+            <button onclick="document.getElementById('createModal').showModal()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
+                ➕ Créer une room
+            </button>
+            <input type="text" id="codeInput" placeholder="Ou entrez un code privé..." style="padding: 0.75rem; border: 2px solid var(--gray-300); border-radius: var(--radius-md); font-size: 14px;">
+            <button onclick="joinByCode()" style="padding: 0.75rem 1.5rem; background: var(--gray-200); color: var(--gray-900); border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer;">
+                Rejoindre
+            </button>
+        </div>
+
+        <h2 class="section-title">Rooms publiques disponibles</h2>
+
+        {% if games is empty %}
+            <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="12" y1="8" x2="12" y2="12"/>
+                    <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <h3>Aucune room disponible</h3>
+                <p>Créez une room publique pour que d'autres joueurs puissent vous rejoindre !</p>
+            </div>
+        {% else %}
+            <div class="challenges-grid">
+                {% for game in games %}
+                    <div class="challenge-card">
+                        <div class="challenge-info">
+                            <div class="challenge-header">
+                                <h3 class="challenge-title">
+                                    Joueurs: <strong>{{ game.participants|length }}/{{ game.maxPlayers }}</strong>
+                                </h3>
+                                <span class="difficulty-badge difficulty-{{ game.state.value }}">
+                                    {{ game.state.label() }}
+                                </span>
+                            </div>
+
+                            {% if game.challenge %}
+                                <div style="font-size: 13px; color: var(--gray-700); margin-top: 0.5rem;">
+                                    <strong>Challenge:</strong> {{ game.challenge.startPage }} → {{ game.challenge.endPage }}
+                                </div>
+                            {% else %}
+                                <div style="font-size: 13px; color: var(--gray-600); margin-top: 0.5rem;">
+                                    <em>Challenge à sélectionner...</em>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="challenge-action" style="margin-top: auto;">
+                            <form method="post" action="{{ path('multiplayer_join', {id: game.id}) }}" style="width: 100%;">
+                                <button type="submit" style="width: 100%; padding: 0.5rem; background: none; border: none; color: white; font-weight: 600; cursor: pointer;">
+                                    Rejoindre
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+</div>
+
+<!-- Create Modal -->
+<dialog id="createModal" style="border: none; border-radius: var(--radius-md); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); padding: 2rem; min-width: 400px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0; font-size: 20px;">Créer une room</h2>
+        <button onclick="document.getElementById('createModal').close()" style="background: none; border: none; font-size: 24px; cursor: pointer;">✕</button>
+    </div>
+
+    <form method="post" action="{{ path('multiplayer_create') }}">
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Type de room</label>
+            <select name="isPublic" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); font-size: 14px;">
+                <option value="1">🌍 Publique (visible pour tous)</option>
+                <option value="0">🔒 Privée (code d'accès uniquement)</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Nombre de joueurs (2-10)</label>
+            <input type="number" name="maxPlayers" min="2" max="10" value="4" style="width: 100%; padding: 0.75rem; border: 1px solid var(--gray-300); border-radius: var(--radius-sm); font-size: 14px;">
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" style="flex: 1; padding: 0.75rem; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;">
+                Créer
+            </button>
+            <button type="button" onclick="document.getElementById('createModal').close()" style="flex: 1; padding: 0.75rem; background: var(--gray-200); color: var(--gray-900); border: none; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer;">
+                Annuler
+            </button>
+        </div>
+    </form>
+</dialog>
+
+<script>
+function joinByCode() {
+    const code = document.getElementById('codeInput').value.trim();
+    if (!code) {
+        alert('Veuillez entrer un code de room');
+        return;
+    }
+    window.location.href = '{{ path('multiplayer_join_code', {code: 'CODE'}) }}'.replace('CODE', code);
+}
+
+// Allow Enter key to submit
+document.getElementById('codeInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') joinByCode();
+});
+</script>
+{% endblock %}
