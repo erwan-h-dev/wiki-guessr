@@ -6,10 +6,14 @@
         right: 0;
         bottom: 0;
         background: rgba(0, 0, 0, 0.5);
-        display: flex;
+        display: none;
         justify-content: center;
         align-items: center;
         z-index: 9999;
+    }
+
+    .username-modal-overlay[style*="display: flex"] {
+        display: flex;
     }
 
     .username-modal {
@@ -137,11 +141,12 @@
     }
 </style>
 <div class="username-modal-overlay"
-     data-controller="username-modal"
-     data-username-modal-show-on-load="{{ show_username_modal ? 'true' : 'false' }}"
-     data-visible="{{ show_username_modal ? 'true' : 'false' }}"
+     data-controller="username-edit"
+     data-username-edit-update-url-value="{{ path('player_update_username') }}"
+     data-username-edit-show-on-load="{{ show_username_modal ? 'true' : 'false' }}"
+     data-username-edit-target="overlay"
 >
-    <div class="username-modal">
+    <div class="username-modal" data-username-edit-target="modal">
         <div class="modal-header">
             <h2>Bienvenue!</h2>
             <p>Veuillez entrer votre nom de joueur</p>
@@ -151,13 +156,12 @@
             <div
                 class="error-message"
                 style="display: none;"
-                data-username-modal-target="errorMessage"
+                data-username-edit-target="error"
             ></div>
 
             <form
-                action="{{ path('player_set_username') }}"
-                method="POST"
-                data-username-modal-target="form"
+                action="{{ path('player_update_username') }}"
+                data-action="submit->username-edit#submit"
             >
                 <div class="form-group">
                     <label for="usernameInput">Nom de joueur</label>
@@ -166,10 +170,11 @@
                         id="usernameInput"
                         name="username"
                         maxlength="50"
+                        minlength="2"
                         placeholder="Entrez votre nom"
                         required
                         autofocus
-                        data-username-modal-target="input"
+                        data-username-edit-target="input"
                         value="{{ player.username|e }}"
                     >
                     <div class="form-hint">Entre 2 et 50 caractères</div>
@@ -177,7 +182,7 @@
 
                 <button
                     type="submit"
-                    data-username-modal-target="submitBtn"
+                    data-username-edit-target="submitBtn"
                 >
                     Confirmer
                 </button>

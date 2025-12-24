@@ -20,11 +20,6 @@
     {% endblock %}
 </head>
 <body>
-{# Username modal - always included, visibility controlled by Stimulus and subscriber #}
-    {% include 'components/username_modal.html.twig' with {
-        show_username_modal: app.request.attributes.get('_show_username_modal', false),
-        player: player
-    } only %}
     {% block body %}{% endblock %}
     {% include 'footer.html.twig' %}
 </body>

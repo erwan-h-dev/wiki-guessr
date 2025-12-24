@@ -98,8 +98,6 @@ export default class extends Controller {
     }
 
     handlePopState(event) {
-        console.log('⏪ Browser back/forward button clicked');
-        console.log('State:', event.state);
 
         if (event.state && event.state.index !== undefined) {
             const targetIndex = event.state.index;
@@ -107,8 +105,6 @@ export default class extends Controller {
             if (targetIndex >= 0 && targetIndex < this.history.length) {
                 this.currentIndex = targetIndex;
                 const page = this.history[targetIndex];
-
-                console.log('📄 Restoring page:', page.title);
 
                 // Recharger via Turbo Frame (ne pas ajouter à l'historique)
                 this.loadPage(page.title, false);

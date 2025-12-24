@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if ((event.ctrlKey || event.metaKey) && (event.key.toLowerCase() === 'f' || event.key.toLowerCase() === 'g')) {
                 event.preventDefault();
                 event.stopPropagation();
-                console.log('🔍 Search blocked during gameplay!');
                 return false;
             }
         });

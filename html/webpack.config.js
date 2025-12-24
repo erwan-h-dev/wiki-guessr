@@ -22,13 +22,12 @@ Encore
      */
     .addEntry('app', './assets/pages/app.js')
     .addEntry('game', './assets/pages/game.js')
-    // .addEntry('multiplayer', './assets/pages/multiplayer.js')
+    .addEntry('multiplayer', './assets/pages/multiplayer.js')
     .addStyleEntry('landing', './assets/styles/landing.css')
     .enableStimulusBridge('./assets/controllers.json')
 
     // When enabled, Webpack "splits" your files into smaller pieces for greater optimization.
     .splitEntryChunks()
-
     // will require an extra script tag for runtime.js
     // but, you probably want this, unless you're building a single-page app
     .enableSingleRuntimeChunk()

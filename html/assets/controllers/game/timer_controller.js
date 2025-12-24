@@ -7,7 +7,6 @@ export default class extends Controller {
     };
 
     connect() {
-        console.log('⏱️ Timer controller connected');
         this.startTimer();
 
         // Écouter l'événement de victoire
@@ -15,7 +14,6 @@ export default class extends Controller {
     }
 
     disconnect() {
-        console.log('⏱️ Timer controller disconnected');
         this.stopTimer();
         document.removeEventListener('game:victory', () => this.stopTimer());
     }

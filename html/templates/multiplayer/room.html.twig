@@ -2,16 +2,34 @@
 
 {% block title %}Room Multijoueur - Wiki Game{% endblock %}
 
-{% block page_stylesheets %}
+{% block stylesheets %}
     {{ encore_entry_link_tags('landing') }}
 {% endblock %}
 
-{% block page_scripts %}
-{#    {{ encore_entry_script_tags('multiplayer') }}#}
+{% block javascripts %}
+    {{ encore_entry_script_tags('multiplayer') }}
 {% endblock %}
 {% block body %}
 
-<div class="landing-container">
+{# Username change modal #}
+{% include 'components/username_modal.html.twig' with {
+    show_username_modal: false,
+    player: player
+} only %}
+
+<div class="landing-container"
+     data-controller="multiplayer--room"
+     data-multiplayer--room-game-id-value="{{ game.id }}"
+     data-multiplayer--room-player-id-value="{{ player.id }}"
+     data-multiplayer--room-is-creator-value="{{ player == game.creator ? 'true' : 'false' }}"
+     data-multiplayer--room-sync-url-value="{{ path('multiplayer_sync', {id: game.id}) }}"
+     data-multiplayer--room-ready-url-value="{{ path('multiplayer_ready', {id: game.id}) }}"
+     data-multiplayer--room-update-username-url-value="{{ path('player_update_username') }}"
+     data-multiplayer--room-kick-url-value="{{ path('multiplayer_kick', {id: game.id, participantId: 'PARTICIPANT_ID'}) }}"
+     data-multiplayer--room-start-url-value="{{ path('multiplayer_start', {id: game.id}) }}"
+     data-multiplayer--room-do-start-url-value="{{ path('multiplayer_do_start', {id: game.id}) }}"
+     data-multiplayer--room-lobby-url-value="{{ path('multiplayer_lobby') }}"
+>
     <header class="header">
         <a href="{{ path('multiplayer_lobby') }}" class="back-link">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -31,21 +49,21 @@
         <section style="display: flex; flex-direction: column;">
             <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 1rem;">👥 Participants ({{ game.participants|length }}/{{ game.maxPlayers }})</h2>
 
-            <div style="display: flex; flex-direction: column; gap: 0.75rem; flex: 1;">
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; flex: 1;" data-multiplayer--room-target="participantsList">
                 {% for participant in game.participants %}
                     <div data-participant-id="{{ participant.id }}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
                         <div style="flex: 1;">
                             <div style="display: flex; align-items: center; gap: 0.5rem;">
                                 <span data-username style="font-weight: 600;">{{ participant.player.username }}</span>
                                 {% if player == participant.player %}
-                                <button type="button" onclick="showUsernameModal()" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Modifier le pseudo">
+                                <button type="button" onclick="const username = this.parentElement.querySelector('[data-username]').textContent.trim(); document.querySelector('[data-controller=username-edit]')?.dispatchEvent(new CustomEvent('show-username-modal', { detail: { username } }))" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Modifier le pseudo">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
                                     </svg>
                                 </button>
                                 {% elseif player == game.creator and participant.player != game.creator %}
-                                <button type="button" onclick="kickPlayer({{ participant.id }}, '{{ participant.player.username }}')" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Retirer ce joueur">
+                                <button type="button" data-action="click->multiplayer--room#kickPlayer" data-participant-id="{{ participant.id }}" data-username="{{ participant.player.username }}" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Retirer ce joueur">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                         <polyline points="3 6 5 6 21 6"/>
                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -178,7 +196,10 @@
 
             <!-- Ready Button -->
             <div style="display: flex; gap: 1rem;">
-                <button id="readyBtn" type="button" onclick="toggleReady()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">
+                <button type="button"
+                        data-multiplayer--room-target="readyBtn"
+                        data-action="click->multiplayer--room#toggleReady"
+                        style="flex: 1; padding: 1rem; background: linear-gradient(135deg, var(--success) 0%, #059669 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; font-size: 16px; transition: all 0.3s ease;">
                     ✓ Je suis prêt
                 </button>
 
@@ -191,7 +212,12 @@
 
             <!-- Start Button (Creator only) -->
             {% if player == game.creator %}
-                <button id="startBtn" type="button" onclick="startCountdown()" disabled style="width: 100%; padding: 1.5rem; background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; font-size: 18px; opacity: 0.5; cursor: not-allowed;" title="Tous les joueurs doivent être prêts">
+                <button type="button"
+                        data-multiplayer--room-target="startBtn"
+                        data-action="click->multiplayer--room#startCountdown"
+                        disabled
+                        style="width: 100%; padding: 1.5rem; background: linear-gradient(135deg, var(--accent) 0%, #f97316 100%); color: white; border: none; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; font-size: 18px; opacity: 0.5; cursor: not-allowed;"
+                        title="Tous les joueurs doivent être prêts">
                     🚀 Démarrer la partie
                 </button>
             {% endif %}
@@ -210,386 +236,28 @@
 </div>
 
 <!-- Countdown Overlay -->
-<div id="countdownOverlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
+<div data-controller="multiplayer--countdown"
+     data-multiplayer--countdown-target="overlay"
+     style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
     <div style="text-align: center; color: white;">
-        <div style="font-size: 120px; font-weight: 700; margin: 0;" id="countdownText">5</div>
+        <div style="font-size: 120px; font-weight: 700; margin: 0;" data-multiplayer--countdown-target="text">5</div>
         <div style="font-size: 24px; margin-top: 1rem;">Préparez-vous !</div>
     </div>
 </div>
 
 <!-- Kicked Modal -->
-<div id="kickedModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; flex-direction: column; justify-content: center; align-items: center;">
+<div data-multiplayer--room-target="kickedModal"
+     style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 10000; flex-direction: column; justify-content: center; align-items: center;">
     <div style="background: white; padding: 2rem; border-radius: 12px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
         <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
         <h2 style="margin: 0 0 1rem 0; font-size: 24px; color: #1a1a1a;">Vous avez été retiré</h2>
         <p style="margin: 0 0 1.5rem 0; color: #666; font-size: 16px;">Le créateur vous a retiré de la room.</p>
-        <button onclick="window.location.href='{{ path('multiplayer_lobby') }}'" style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--primary) 0%, #0891b2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
+        <button type="button"
+                data-action="click->multiplayer--room#returnToLobby"
+                style="width: 100%; padding: 0.75rem; background: linear-gradient(135deg, var(--primary) 0%, #0891b2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;">
             Retour au lobby
         </button>
     </div>
 </div>
 
-<!-- Auto-refresh for polling -->
-<script>
-let pollInterval;
-let countdownInterval;
-let gameStartedAt = null;
-let currentGameState = null;
-let currentPlayerReady = false;
-let currentPlayerId = {{ player.id }};
-let isCurrentPlayerCreator = {{ player == game.creator ? 'true' : 'false' }};
-
-function pollRoomState() {
-    fetch('{{ path('multiplayer_sync', {id: game.id}) }}')
-        .then(res => res.json())
-        .then(data => {
-            // Store game state for later reference
-            currentGameState = data;
-
-            // Find current player status by ID
-            const currentPlayerData = data.participants.find(p => p.playerId === currentPlayerId);
-
-            // Check if current player has been kicked
-            if (!currentPlayerData) {
-                // Player has been kicked
-                clearInterval(pollInterval);
-                clearInterval(countdownInterval);
-                document.getElementById('kickedModal').style.display = 'flex';
-                return;
-            }
-
-            if (currentPlayerData) {
-                currentPlayerReady = currentPlayerData.isReady;
-                updateReadyButtonUI();
-            }
-
-            // Update participant UI
-            updateParticipantsList(data.participants);
-
-            // Handle state transitions
-            if (data.state === 'countdown' && !gameStartedAt) {
-                showCountdown(data.countdownEndsAt);
-            } else if (data.state === 'in_progress') {
-                // Game started, redirect to game
-                gameStartedAt = data.gameStartedAt;
-                redirectToGame();
-            }
-        })
-        .catch(err => console.error('Poll error:', err));
-}
-
-function updateParticipantsList(participants) {
-    const allParticipantIds = [...participants.map(p => p.id)];
-    participants.forEach((participant, index) => {
-
-        const el = document.querySelector(`[data-participant-id="${participant.id}"]`);
-
-        if (el) {
-            el.querySelector('[data-status]').textContent = participant.isReady ? '✓ Prêt' : '⏳ En attente';
-            el.querySelector('[data-username]').textContent  = participant.userName;
-        } else {
-            console.log('New participant joined: ', participant.userName);
-            // If participant not found in DOM, it means a new participant joined
-            const participantsContainer = document.querySelector('[data-participant-id]').parentNode;
-
-            // Determine which buttons to show
-            let buttonHTML = '';
-            if (participant.playerId === currentPlayerId) {
-                // Show pencil icon for current player
-                buttonHTML = `
-                    <button type="button" onclick="showUsernameModal()" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Modifier le pseudo">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                        </svg>
-                    </button>
-                `;
-            } else if (isCurrentPlayerCreator) {
-                // Show trash icon if current user is creator and this is not the creator
-                buttonHTML = `
-                    <button type="button" onclick="kickPlayer(${participant.id}, '${participant.userName}')" style="background: none; border: none; cursor: pointer; padding: 0.25rem; display: flex; align-items: center; color: var(--gray-600); transition: color 0.2s ease;" title="Retirer ce joueur">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="3 6 5 6 21 6"/>
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                            <line x1="10" y1="11" x2="10" y2="17"/>
-                            <line x1="14" y1="11" x2="14" y2="17"/>
-                        </svg>
-                    </button>
-                `;
-            }
-
-            let newParticipant = `
-                <div data-participant-id="${participant.id}" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--radius-sm);">
-                    <div style="flex: 1;">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span data-username style="font-weight: 600;">
-                                ${participant.userName}
-                            </span>
-                            ${buttonHTML}
-                        </div>
-                        <div data-status style="font-size: 12px; color: var(--gray-600);">${participant.isReady ? '✓ Prêt' : '⏳ En attente'}</div>
-                    </div>
-                </div>
-            `;
-
-            participantsContainer.insertAdjacentHTML('beforeend', newParticipant);
-        }
-    });
-
-    document.querySelectorAll(`[data-participant-id]`).forEach(el => {
-        // Remove participants that are no longer in the list
-        let pid = parseInt(el.getAttribute('data-participant-id'));
-        if (!allParticipantIds.includes(pid)) {
-            console.log('Participant left: ', el.getAttribute('data-participant-id'));
-            el.remove();
-        }
-    });
-
-    // Update start button state
-    updateStartButtonState();
-}
-
-function updateStartButtonState() {
-    const startBtn = document.getElementById('startBtn');
-    if (!startBtn) return;
-
-    const allReady = checkAllPlayersReady();
-    const hasChallengeSelected = currentGameState && currentGameState.challenge !== null;
-    const canStart = allReady && hasChallengeSelected;
-
-    if (canStart) {
-        startBtn.disabled = false;
-        startBtn.style.opacity = '1';
-        startBtn.style.cursor = 'pointer';
-        startBtn.title = 'Démarrer la partie';
-    } else {
-        startBtn.disabled = true;
-        startBtn.style.opacity = '0.5';
-        startBtn.style.cursor = 'not-allowed';
-        if (!hasChallengeSelected) {
-            startBtn.title = 'Un challenge doit être sélectionné';
-        } else {
-            startBtn.title = 'Tous les joueurs doivent être prêts';
-        }
-    }
-}
-
-function checkAllPlayersReady() {
-    const participants = document.querySelectorAll('[data-participant-id]');
-    if (participants.length === 0) {
-        return false;
-    }
-
-    for (const participant of participants) {
-        const statusEl = participant.querySelector('[data-status]');
-        if (statusEl && !statusEl.textContent.includes('Prêt')) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-function updateReadyButtonUI() {
-    const readyBtn = document.getElementById('readyBtn');
-    if (!readyBtn) return;
-
-    if (currentPlayerReady) {
-        readyBtn.style.background = 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
-        readyBtn.textContent = '✕ Je ne suis pas prêt';
-    } else {
-        readyBtn.style.background = 'linear-gradient(135deg, var(--success) 0%, #059669 100%)';
-        readyBtn.textContent = '✓ Je suis prêt';
-    }
-}
-
-function toggleReady() {
-    const readyBtn = document.getElementById('readyBtn');
-
-    const newReadyState = !currentPlayerReady;
-
-    fetch('{{ path('multiplayer_ready', {id: game.id}) }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: 'ready=' + (newReadyState ? '1' : '0')
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                currentPlayerReady = newReadyState;
-                updateReadyButtonUI();
-                // Trigger an immediate poll to update other players' views
-                setTimeout(pollRoomState, 500);
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Erreur lors de la mise à jour du statut');
-            readyBtn.disabled = false;
-            readyBtn.style.opacity = '1';
-        });
-}
-
-function showUsernameModal() {
-    const currentUsername = document.querySelector('[data-username]').textContent;
-    const newUsername = prompt('Changer votre pseudo (2-50 caractères):', currentUsername);
-
-    if (newUsername === null) {
-        return; // User cancelled
-    }
-
-    const trimmedUsername = newUsername.trim();
-
-    if (trimmedUsername.length < 2 || trimmedUsername.length > 50) {
-        alert('Le pseudo doit contenir entre 2 et 50 caractères');
-        return;
-    }
-
-    fetch('{{ path('player_update_username') }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: trimmedUsername })
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Update local UI
-                document.querySelector('[data-username]').textContent = data.username;
-                // Trigger immediate poll to update other players' views
-                setTimeout(pollRoomState, 300);
-            } else {
-                alert('Erreur: ' + (data.error || 'Impossible de changer le pseudo'));
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Erreur lors de la mise à jour du pseudo');
-        });
-}
-
-function kickPlayer(participantId) {
-    fetch('{{ path('multiplayer_kick', {id: game.id, participantId: 'PARTICIPANT_ID'}) }}'.replace('PARTICIPANT_ID', participantId), {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        }
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                // Remove the participant from the DOM
-                const el = document.querySelector(`[data-participant-id="${participantId}"]`);
-                if (el) {
-                    el.remove();
-                }
-                // Trigger poll to update the button state
-                setTimeout(pollRoomState, 300);
-            } else {
-                alert('Erreur: ' + (data.error || 'Impossible de retirer le joueur'));
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Erreur lors du retrait du joueur');
-        });
-}
-
-function startCountdown() {
-    const btn = document.getElementById('startBtn');
-    btn.disabled = true;
-    btn.textContent = 'Démarrage...';
-
-    fetch('{{ path('multiplayer_start', {id: game.id}) }}', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                showCountdown(data.countdownEndsAt);
-            } else {
-                alert('Erreur: ' + (data.error || 'Cannot start game'));
-                btn.disabled = false;
-                btn.textContent = '🚀 Démarrer la partie';
-            }
-        })
-        .catch(err => {
-            console.error('Error:', err);
-            alert('Erreur lors du démarrage');
-            btn.disabled = false;
-            btn.textContent = '🚀 Démarrer la partie';
-        });
-}
-
-function showCountdown(endsAt) {
-    const overlay = document.getElementById('countdownOverlay');
-    const text = document.getElementById('countdownText');
-    overlay.style.display = 'flex';
-
-    const now = Math.floor(Date.now() / 1000);
-    const timeLeft = Math.max(0, endsAt - now);
-
-    let remaining = timeLeft;
-
-    const updateCountdown = () => {
-        if (remaining > 0) {
-            text.textContent = remaining;
-            remaining--;
-        } else {
-            text.textContent = 'GO!';
-            clearInterval(countdownInterval);
-
-            // Call do-start endpoint
-            setTimeout(() => {
-                fetch('{{ path('multiplayer_do_start', {id: game.id}) }}', { method: 'POST' })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.success) {
-                            redirectToGame();
-                        }
-                    })
-                    .catch(err => console.error('Error starting game:', err));
-            }, 500);
-        }
-    };
-
-    updateCountdown();
-    countdownInterval = setInterval(updateCountdown, 1000);
-}
-
-function redirectToGame() {
-    // Get the game session ID for current player
-    {#fetch('{{ path('multiplayer_sync', {id: game.id}) }}')#}
-    {#    .then(res => res.json())#}
-    {#    .then(data => {#}
-    {#        const currentPlayer = '{{ player.username }}';#}
-    {#        const participant = data.participants.find(p => p.playerName === currentPlayer);#}
-    {#        if (participant && participant.gameSessionId) {#}
-    {#            // Redirect to game with the session ID#}
-    {#            window.location.href = '{{ path('game_load_page', {id: 'SESSION_ID', title: 'PAGE'}) }}'#}
-    {#                .replace('SESSION_ID', participant.gameSessionId)#}
-    {#                .replace('PAGE', '{{ game.challenge.startPage }}');#}
-    {#        } else {#}
-    {#            window.location.href = '{{ path('app_home') }}';#}
-    {#        }#}
-    {#    })#}
-    {#    .catch(err => {#}
-    {#        console.error('Error getting game session:', err);#}
-    {#        window.location.href = '{{ path('app_home') }}';#}
-    {#    });#}
-}
-
-// Poll every 2 seconds
-pollInterval = setInterval(pollRoomState, 2000);
-
-// Initial poll
-pollRoomState();
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-    clearInterval(pollInterval);
-    clearInterval(countdownInterval);
-});
-</script>
 {% endblock %}

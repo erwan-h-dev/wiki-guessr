@@ -4,7 +4,6 @@ export default class extends Controller {
     static targets = ['modal'];
 
     connect() {
-        console.log('🎉 Victory controller connected');
 
         // Émettre un événement pour arrêter le timer
         document.dispatchEvent(new Event('game:victory'));
@@ -35,7 +34,6 @@ export default class extends Controller {
             const timerController = this.application.getControllerForElementAndIdentifier(timerElement, 'timer');
             if (timerController && timerController.stopTimer) {
                 timerController.stopTimer();
-                console.log('⏱️ Timer stopped');
             }
         }
     }
