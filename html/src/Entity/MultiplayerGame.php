@@ -29,7 +29,7 @@ class MultiplayerGame
     #[ORM\Column(enumType: MultiplayerGameState::class)]
     private MultiplayerGameState $state = MultiplayerGameState::LOBBY;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'multiplayerGames')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Challenge $challenge = null;
 
