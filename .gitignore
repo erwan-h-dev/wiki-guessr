@@ -5,7 +5,6 @@ mysql/
 .idea/
 .vscode/
 CLAUDE.md
-preprompt_*
 *.swp
 *.swo
 *~
