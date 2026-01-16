@@ -20,6 +20,9 @@ class GameSession
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $endTime = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private \DateTimeInterface $updatedAt;
+
     #[ORM\Column(nullable: true)]
     private ?int $durationSeconds = null;
 
@@ -46,9 +49,14 @@ class GameSession
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $customEndPage = null;
 
-    #[ORM\OneToOne(inversedBy: 'gameSession')]
+    #[ORM\ManyToOne(inversedBy: 'gameSessions')]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
     private ?MultiplayerParticipant $multiplayerParticipant = null;
+
+    public function __construct()
+    {
+        $this->updatedAt = new \DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -75,6 +83,18 @@ class GameSession
     public function setEndTime(?\DateTimeInterface $endTime): static
     {
         $this->endTime = $endTime;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
 
         return $this;
     }

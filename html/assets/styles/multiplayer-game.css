@@ -1,0 +1,444 @@
+/* Multiplayer Game Layout */
+
+.multiplayer-game-container {
+    display: grid;
+    grid-template-columns: 1fr 30%;
+    gap: 0;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--gray-50);
+    font-family: inherit;
+}
+
+/* Wiki Content Area */
+.wiki-content-area {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: white;
+}
+
+.challenge-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.challenge-info h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.pages-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 14px;
+    opacity: 0.95;
+}
+
+.pages-info .from-page,
+.pages-info .to-page {
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+
+.pages-info .arrow {
+    opacity: 0.8;
+}
+
+.game-timer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.game-timer .timer {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+}
+
+.game-timer-label {
+    font-size: 12px;
+    opacity: 0.8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Wiki Frame */
+.wiki-frame {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block;
+}
+
+.wiki-frame .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--gray-400);
+    font-size: 16px;
+}
+
+/* Participants Overlay */
+.participants-overlay {
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-left: 1px solid var(--gray-200);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: sticky;
+    right: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 100;
+}
+
+.overlay-header {
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-200);
+    background: var(--gray-50);
+    flex-shrink: 0;
+}
+
+.overlay-header h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--gray-900);
+}
+
+.participants-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Participant Card */
+.participant-card {
+    padding: 1rem;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s ease;
+}
+
+.participant-card.current-player {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0.02) 100%);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.participant-card.finished {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, rgba(34, 197, 94, 0.02) 100%);
+    border-color: var(--success);
+}
+
+.participant-card.inactive {
+    opacity: 0.6;
+}
+
+.participant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+}
+
+.participant-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--gray-900);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.participant-position-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.participant-position-badge.first {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.participant-position-badge.second {
+    background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+}
+
+.participant-position-badge.third {
+    background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
+}
+
+.participant-timer {
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    color: var(--primary);
+}
+
+.participant-timer.finished {
+    color: var(--success);
+}
+
+.participant-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 12px;
+    color: var(--gray-600);
+}
+
+.participant-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.participant-stat-label {
+    font-weight: 500;
+}
+
+.participant-stat-value {
+    color: var(--gray-900);
+    font-weight: 600;
+}
+
+.participant-page {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--gray-200);
+    font-size: 11px;
+    color: var(--gray-500);
+    word-break: break-word;
+}
+
+.participant-page strong {
+    color: var(--gray-700);
+    display: block;
+}
+
+/* Personal Victory Scoreboard */
+.personal-victory {
+    padding: 1rem;
+    background: linear-gradient(135deg, var(--success) 0%, var(--success-dark) 100%);
+    color: white;
+    border-radius: var(--radius-sm);
+    margin: 0 0.75rem;
+    text-align: center;
+}
+
+.personal-victory.hidden {
+    display: none;
+}
+
+.victory-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.victory-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.victory-stat {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.victory-stat-label {
+    font-weight: 500;
+    opacity: 0.95;
+}
+
+.victory-stat-value {
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+}
+
+.view-ranking-btn {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+}
+
+.view-ranking-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Victory Flash (Fullscreen Animation) */
+.victory-flash-container {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.victory-flash {
+    position: fixed;
+    inset: 0;
+    background: rgba(255, 255, 255, 0);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease-in-out;
+    z-index: 99998;
+}
+
+.victory-flash.active {
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.flash-content {
+    text-align: center;
+    opacity: 0;
+    transition: opacity 150ms ease-in-out 50ms;
+}
+
+.victory-flash.active .flash-content {
+    opacity: 1;
+}
+
+.flash-player-name {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.flash-message {
+    font-size: 18px;
+    color: var(--gray-700);
+    margin-bottom: 1.5rem;
+}
+
+/* Confetti */
+.confetti {
+    position: fixed;
+    pointer-events: none;
+    font-size: 24px;
+    z-index: 99998;
+    animation: confetti-fall 3s ease-out forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        opacity: 1;
+        transform: translateY(-20px) rotate(0deg);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(200px) rotate(360deg);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .multiplayer-game-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr auto;
+    }
+
+    .participants-overlay {
+        grid-column: 1;
+        grid-row: 2;
+        height: auto;
+        max-height: 40vh;
+        border-left: none;
+        border-top: 1px solid var(--gray-200);
+        position: relative;
+        top: auto;
+        right: auto;
+    }
+
+    .challenge-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .game-timer {
+        width: 100%;
+    }
+
+    .participants-list {
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 0.5rem;
+    }
+
+    .participant-card {
+        flex-shrink: 0;
+        min-width: 150px;
+    }
+}
+
+/* Scrollbar Styling */
+.participants-list::-webkit-scrollbar,
+.wiki-frame::-webkit-scrollbar {
+    width: 6px;
+}
+
+.participants-list::-webkit-scrollbar-track,
+.wiki-frame::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.participants-list::-webkit-scrollbar-thumb,
+.wiki-frame::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 3px;
+}
+
+.participants-list::-webkit-scrollbar-thumb:hover,
+.wiki-frame::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-400);
+}
+
+/* Loading and Empty States */
+.no-participants {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    color: var(--gray-400);
+    font-size: 14px;
+}

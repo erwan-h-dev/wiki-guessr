@@ -30,14 +30,8 @@ class MultiplayerGame
     private MultiplayerGameState $state = MultiplayerGameState::LOBBY;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private ?Challenge $challenge = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $customStartPage = null;
-
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $customEndPage = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
@@ -137,43 +131,14 @@ class MultiplayerGame
         return $this;
     }
 
-    public function getCustomStartPage(): ?string
-    {
-        return $this->customStartPage;
-    }
-
-    public function setCustomStartPage(?string $customStartPage): static
-    {
-        $this->customStartPage = $customStartPage;
-
-        return $this;
-    }
-
-    public function getCustomEndPage(): ?string
-    {
-        return $this->customEndPage;
-    }
-
-    public function setCustomEndPage(?string $customEndPage): static
-    {
-        $this->customEndPage = $customEndPage;
-
-        return $this;
-    }
-
     public function getStartPage(): string
     {
-        return $this->customStartPage ?? $this->challenge?->getStartPage() ?? '';
+        return $this->challenge?->getStartPage() ?? '';
     }
 
     public function getEndPage(): string
     {
-        return $this->customEndPage ?? $this->challenge?->getEndPage() ?? '';
-    }
-
-    public function hasCustomChallenge(): bool
-    {
-        return $this->customStartPage !== null && $this->customEndPage !== null;
+        return $this->challenge?->getEndPage() ?? '';
     }
 
     public function getCreator(): ?Player

@@ -118,8 +118,6 @@ class MultiplayerGameService
         }
 
         $game->setChallenge($challenge);
-        $game->setCustomStartPage(null);
-        $game->setCustomEndPage(null);
         $game->setState(MultiplayerGameState::READY);
 
         // Reset all ready flags when challenge is selected
@@ -140,13 +138,25 @@ class MultiplayerGameService
             throw new \InvalidArgumentException('Start and end pages cannot be empty');
         }
 
+        $startPage = trim($startPage);
+        $endPage = trim($endPage);
+
         if ($startPage === $endPage) {
             throw new \InvalidArgumentException('Start and end pages must be different');
         }
 
-        $game->setChallenge(null);
-        $game->setCustomStartPage(trim($startPage));
-        $game->setCustomEndPage(trim($endPage));
+        // Create a custom Challenge
+        $customChallenge = new Challenge();
+        $customChallenge->setName("Custom: $startPage → $endPage");
+        $customChallenge->setStartPage($startPage);
+        $customChallenge->setEndPage($endPage);
+        $customChallenge->setDifficulty('UNKNOWN');
+        $customChallenge->setModes(['multiplayer']);
+
+        $this->entityManager->persist($customChallenge);
+
+        // Set the custom challenge on the game
+        $game->setChallenge($customChallenge);
         $game->setState(MultiplayerGameState::READY);
 
         // Reset all ready flags when challenge is selected
@@ -177,10 +187,6 @@ class MultiplayerGameService
             throw new \InvalidArgumentException('Game has no creator');
         }
 
-        if ($game->getChallenge() === null && !$game->hasCustomChallenge()) {
-            throw new \InvalidArgumentException('Challenge not selected');
-        }
-
         if (!$this->allPlayersReady($game)) {
             throw new \InvalidArgumentException('Not all players are ready');
         }
@@ -193,10 +199,6 @@ class MultiplayerGameService
 
     public function startGame(MultiplayerGame $game): void
     {
-        if ($game->getChallenge() === null && !$game->hasCustomChallenge()) {
-            throw new \InvalidArgumentException('Challenge not selected');
-        }
-
         $game->setState(MultiplayerGameState::IN_PROGRESS);
         $game->setGameStartedAt(new \DateTimeImmutable());
 
@@ -208,12 +210,6 @@ class MultiplayerGameService
             $gameSession = new GameSession();
             $gameSession->setPlayer($participant->getPlayer());
             $gameSession->setChallenge($game->getChallenge());
-
-            // If custom challenge, set custom pages
-            if ($game->hasCustomChallenge()) {
-                $gameSession->setCustomStartPage($game->getCustomStartPage());
-                $gameSession->setCustomEndPage($game->getCustomEndPage());
-            }
 
             $gameSession->setStartTime(new \DateTime());
             $gameSession->setPath([$startPage]);

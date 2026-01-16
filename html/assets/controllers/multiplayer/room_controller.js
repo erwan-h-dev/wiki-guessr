@@ -330,8 +330,8 @@ export default class extends Controller {
     }
 
     redirectToGame() {
-        // TODO: Implement proper game redirect
-        // For now, just log
+        // Redirect to the multiplayer game page
+        window.location.href = `/multiplayer/${this.gameIdValue}/play`;
     }
 
     showKickedModal() {

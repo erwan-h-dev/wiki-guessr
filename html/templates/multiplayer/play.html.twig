@@ -1,0 +1,78 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jeu Multijoueur - {{ challenge.name }}{% endblock %}
+
+{% block page_stylesheets %}
+    {{ encore_entry_link_tags('multiplayer-game') }}
+{% endblock %}
+
+{% block body %}
+<div class="multiplayer-game-container"
+     data-controller="wiki-history multiplayer--game-sync"
+     data-game-sync-game-id-value="{{ game.id }}"
+     data-game-sync-participant-id-value="{{ participant.id }}"
+     data-game-sync-player-id-value="{{ player.id }}"
+     data-game-sync-sync-url-value="{{ syncUrl }}"
+     data-game-sync-lobby-url-value="{{ path('multiplayer_lobby') }}"
+     data-game-sync-results-url-value="{{ path('multiplayer_results', {'id': game.id}) }}"
+>
+    <!-- Wiki Content Area (70%) -->
+    <div class="wiki-content-area">
+        <!-- Challenge Header -->
+        <div class="challenge-header">
+            <div class="challenge-info">
+                <h1>{{ challenge.name }}</h1>
+                <div class="pages-info">
+                    <span class="from-page">{{ challenge.startPage }}</span>
+                    <span class="arrow">→</span>
+                    <span class="to-page">{{ challenge.endPage }}</span>
+                </div>
+            </div>
+            <div class="game-timer">
+                <div class="timer" data-controller="timer" data-timer-start-time-value="{{ game.gameStartedAt }}">
+                    00:00
+                </div>
+            </div>
+        </div>
+
+        <!-- Wiki Content Frame -->
+        <turbo-frame id="wiki-content"
+                     class="wiki-frame"
+                     src="{{ path('game_load_page', {id: session.id, title: challenge.startPage}) }}"
+                     loading="lazy">
+            <div class="loading">Chargement de la page Wikipedia...</div>
+        </turbo-frame>
+    </div>
+
+    <!-- Participants Overlay (30%) -->
+    <aside class="participants-overlay"
+           data-controller="multiplayer--participants-overlay"
+           data-multiplayer--participants-overlay-game-started-at-value="{{ game.gameStartedAt }}"
+    >
+        <div class="overlay-header">
+            <h2>Participants</h2>
+        </div>
+
+        <div class="participants-list" data-multiplayer--participants-overlay-target="list">
+            <!-- Dynamically populated by participants_overlay_controller -->
+        </div>
+
+        <!-- Personal Victory Scoreboard (shown when you finish) -->
+        <div class="personal-victory" data-multiplayer--game-sync-target="personalVictory" style="display: none;">
+            <div class="victory-content" data-controller="multiplayer--final-scoreboard">
+                <!-- Populated by final_scoreboard_controller -->
+            </div>
+        </div>
+    </aside>
+
+    <!-- Victory Flash (fullscreen, shown when opponent finishes) -->
+    <div class="victory-flash-container" data-controller="multiplayer--victory-flash"></div>
+</div>
+
+<!-- Include the username modal for editing username -->
+{% include 'components/username_modal.html.twig' %}
+{% endblock %}
+
+{% block page_scripts %}
+    {{ encore_entry_script_tags('multiplayer-game') }}
+{% endblock %}

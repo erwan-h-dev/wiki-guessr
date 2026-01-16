@@ -18,23 +18,13 @@ class MultiplayerSyncService
 
         // Build challenge data
         $challengeData = null;
-        if ($game->hasCustomChallenge()) {
-            $challengeData = [
-                'id' => null,
-                'name' => 'Challenge personnalisé',
-                'startPage' => $game->getStartPage(),
-                'endPage' => $game->getEndPage(),
-                'difficulty' => null,
-                'isCustom' => true,
-            ];
-        } elseif ($game->getChallenge()) {
+        if ($game->getChallenge()) {
             $challengeData = [
                 'id' => $game->getChallenge()->getId(),
                 'name' => $game->getChallenge()->getName(),
                 'startPage' => $game->getChallenge()->getStartPage(),
                 'endPage' => $game->getChallenge()->getEndPage(),
                 'difficulty' => $game->getChallenge()->getDifficulty(),
-                'isCustom' => false,
             ];
         }
 
@@ -70,15 +60,23 @@ class MultiplayerSyncService
         $session = $participant->getGameSession();
         $durationSeconds = 0;
         $pageCount = 0;
+        $currentPage = '';
+        $lastActivity = time();
 
         if ($session !== null && $session->isCompleted()) {
             $durationSeconds = $session->getDurationSeconds() ?? 0;
             $pageCount = count($session->getPath());
+            $path = $session->getPath();
+            $currentPage = !empty($path) ? end($path) : '';
+            $lastActivity = $session->getUpdatedAt()?->getTimestamp() ?? time();
         } elseif ($session !== null && $session->getStartTime() !== null) {
             // Calculate current duration if game is in progress
             $now = new \DateTime();
             $durationSeconds = (int) $now->getTimestamp() - (int) $session->getStartTime()->getTimestamp();
             $pageCount = count($session->getPath());
+            $path = $session->getPath();
+            $currentPage = !empty($path) ? end($path) : '';
+            $lastActivity = $session->getUpdatedAt()?->getTimestamp() ?? time();
         }
 
         return [
@@ -90,6 +88,8 @@ class MultiplayerSyncService
             'finishPosition' => $participant->getFinishPosition(),
             'durationSeconds' => $durationSeconds,
             'pageCount' => $pageCount,
+            'currentPage' => $currentPage,
+            'lastActivity' => $lastActivity,
             'gameSessionId' => $session?->getId(),
             'joinedAt' => $participant->getJoinedAt()->getTimestamp(),
         ];

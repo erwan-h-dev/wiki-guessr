@@ -87,6 +87,49 @@ class MultiplayerController extends AbstractController
         ]);
     }
 
+    #[Route('/{id}/play', name: 'multiplayer_play', methods: ['GET'])]
+    public function play(MultiplayerGame $game, Request $request): Response
+    {
+        $player = $request->attributes->get('_player');
+
+        if ($player === null) {
+            throw $this->createAccessDeniedException();
+        }
+
+        // Verify game is in progress
+        if ($game->getState()->value !== 'in_progress') {
+            throw $this->createNotFoundException('Game is not in progress');
+        }
+
+        // Check if player is in the game and get their participant
+        $participant = null;
+        foreach ($game->getParticipants() as $p) {
+            if ($p->getPlayer() === $player) {
+                $participant = $p;
+                break;
+            }
+        }
+
+        if ($participant === null) {
+            throw $this->createNotFoundException('Player not in this game');
+        }
+
+        // Get the game session for this participant
+        $session = $participant->getGameSession();
+        if ($session === null) {
+            throw $this->createNotFoundException('Game session not found');
+        }
+
+        return $this->render('multiplayer/play.html.twig', [
+            'game' => $game,
+            'participant' => $participant,
+            'session' => $session,
+            'challenge' => $game->getChallenge(),
+            'syncUrl' => $this->generateUrl('multiplayer_sync', ['id' => $game->getId()]),
+            'player' => $player,
+        ]);
+    }
+
     #[Route('/join/{code}', name: 'multiplayer_join_code', methods: ['GET'])]
     public function joinCode(string $code, Request $request): Response
     {

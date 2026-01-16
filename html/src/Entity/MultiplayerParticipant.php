@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\MultiplayerParticipantRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: MultiplayerParticipantRepository::class)]
@@ -26,9 +28,37 @@ class MultiplayerParticipant
     #[ORM\JoinColumn(nullable: false)]
     private ?Player $player = null;
 
-    #[ORM\OneToOne(cascade: ['persist', 'remove'])]
-    #[ORM\JoinColumn(nullable: true, onDelete: 'SET NULL')]
-    private ?GameSession $gameSession = null;
+    #[ORM\OneToMany(mappedBy: 'multiplayerParticipant', targetEntity: GameSession::class, cascade: ['persist', 'remove'])]
+    private Collection $gameSessions;
+
+    /**
+     * Convenience method to get the current game session
+     * Returns the most recent active game session for this participant
+     */
+    public function getGameSession(): ?GameSession
+    {
+        if ($this->gameSessions->isEmpty()) {
+            return null;
+        }
+        // Return the last session (most recent)
+        return $this->gameSessions->last();
+    }
+
+    /**
+     * Set the game session (convenience method for backwards compatibility)
+     */
+    public function setGameSession(?GameSession $gameSession): static
+    {
+        if ($gameSession === null) {
+            $this->gameSessions->clear();
+        } else {
+            if (!$this->gameSessions->contains($gameSession)) {
+                $this->gameSessions->add($gameSession);
+            }
+            $gameSession->setMultiplayerParticipant($this);
+        }
+        return $this;
+    }
 
     #[ORM\Column]
     private bool $isReady = false;
@@ -48,6 +78,7 @@ class MultiplayerParticipant
     public function __construct()
     {
         $this->joinedAt = new \DateTimeImmutable();
+        $this->gameSessions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -75,18 +106,6 @@ class MultiplayerParticipant
     public function setPlayer(?Player $player): static
     {
         $this->player = $player;
-
-        return $this;
-    }
-
-    public function getGameSession(): ?GameSession
-    {
-        return $this->gameSession;
-    }
-
-    public function setGameSession(?GameSession $gameSession): static
-    {
-        $this->gameSession = $gameSession;
 
         return $this;
     }

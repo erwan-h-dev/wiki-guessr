@@ -23,6 +23,7 @@ Encore
     .addEntry('app', './assets/pages/app.js')
     .addEntry('game', './assets/pages/game.js')
     .addEntry('multiplayer', './assets/pages/multiplayer.js')
+    .addEntry('multiplayer-game', './assets/pages/multiplayer-game.js')
     .addStyleEntry('landing', './assets/styles/landing.css')
     .enableStimulusBridge('./assets/controllers.json')
 
