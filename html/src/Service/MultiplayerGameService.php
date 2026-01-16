@@ -22,7 +22,6 @@ class MultiplayerGameService
         private EntityManagerInterface $entityManager,
         private MultiplayerGameRepository $gameRepository,
         private MultiplayerParticipantRepository $participantRepository,
-        private GameNavigationService $gameNavigationService,
     ) {}
 
     public function createGame(Player $creator, bool $isPublic, int $maxPlayers): MultiplayerGame
@@ -48,7 +47,7 @@ class MultiplayerGameService
         do {
             $code = '';
             for ($i = 0; $i < self::CODE_LENGTH; $i++) {
-                $code .= self::CODE_CHARACTERS[rand(0, strlen(self::CODE_CHARACTERS) - 1)];
+                $code .= self::CODE_CHARACTERS[random_int(0, strlen(self::CODE_CHARACTERS) - 1)];
             }
         } while ($this->gameRepository->findByCode($code) !== null);
 
@@ -199,6 +198,16 @@ class MultiplayerGameService
 
     public function startGame(MultiplayerGame $game): void
     {
+        // Validate game is in COUNTDOWN state
+        if ($game->getState() !== MultiplayerGameState::COUNTDOWN) {
+            throw new \InvalidArgumentException('Game must be in COUNTDOWN state to start');
+        }
+
+        // Validate challenge is set
+        if ($game->getChallenge() === null) {
+            throw new \InvalidArgumentException('Challenge must be selected before starting game');
+        }
+
         $game->setState(MultiplayerGameState::IN_PROGRESS);
         $game->setGameStartedAt(new \DateTimeImmutable());
 
@@ -207,6 +216,11 @@ class MultiplayerGameService
 
         // Create a GameSession for each participant
         foreach ($game->getParticipants() as $participant) {
+            // Skip if participant already has a session
+            if ($participant->getGameSession() !== null) {
+                continue;
+            }
+
             $gameSession = new GameSession();
             $gameSession->setPlayer($participant->getPlayer());
             $gameSession->setChallenge($game->getChallenge());
@@ -237,20 +251,17 @@ class MultiplayerGameService
             throw new \InvalidArgumentException('Game is not in progress');
         }
 
+        // Count how many players have already finished to determine this player's position
         $finishedCount = 0;
-        $finishPosition = 1;
-
-        // Count how many players have already finished
         foreach ($game->getParticipants() as $p) {
             if ($p->hasFinished()) {
                 $finishedCount++;
-                $finishPosition++;
             }
         }
 
         $participant->setHasFinished(true);
         $participant->setFinishedAt(new \DateTimeImmutable());
-        $participant->setFinishPosition($finishPosition);
+        $participant->setFinishPosition($finishedCount + 1);
 
         // If all players finished, end the game
         if ($this->allPlayersFinished($game)) {
